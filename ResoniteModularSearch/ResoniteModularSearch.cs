@@ -10,7 +10,7 @@ using ResoniteModLoader;
 namespace ResoniteModularSearch;
 
 public class ResoniteModularSearch : ResoniteMod {
-	internal const string VERSION_CONSTANT = "0.0.0";
+	internal const string VERSION_CONSTANT = "0.0.1";
 	public override string Name => "ResoniteModularSearch";
 	public override string Author => "mpmxyz";
 	public override string Version => VERSION_CONSTANT;

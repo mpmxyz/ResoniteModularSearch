@@ -1,0 +1,19 @@
+﻿namespace ResoniteModularSearch.Operations;
+
+/// <summary>
+/// Result of an <see cref="IFilterAction"/>.
+/// </summary>
+internal enum FilterActionResult {
+	/// <summary>
+	/// An error occurred while applying the operation.
+	/// </summary>
+	Failed,
+	/// <summary>
+	/// The operation was applied successfully.
+	/// </summary>
+	Success,
+	/// <summary>
+	/// Nothing was done.
+	/// </summary>
+	Ignored
+}
