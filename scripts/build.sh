@@ -2,7 +2,7 @@
 
 #The defaults will make the build script testable outside of a GitHub workflow.
 GITHUB_OUTPUT="${GITHUB_OUTPUT:-/dev/stdout}"
-GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-TODO_TemplateAuthor}
+GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-mpmxyz}
 
 SCRIPTS_PATH="$(realpath "$( dirname "$0" )")"
 BUILD_PATH="$(realpath "$( dirname "$0" )/..")"

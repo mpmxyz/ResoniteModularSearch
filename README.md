@@ -19,7 +19,7 @@ It incorporates learnings from [a previous template](https://github.com/mpmxyz/R
 - The release version number is now dictated from the code.
   - You cannot mismatch or accidentally release a duplicate version number!
 - A build for a new Resonite version is automatically triggered at most 3 hours after it has been pushed to the fork of [mpmxyz/ResoniteAssemblies](https://github.com/mpmxyz/ResoniteAssemblies).
-- A workflow to publish mods on the [Resonite Mod Manifest](https://github.com/resonite-modding-group/resonite-mod-manifest) exists but it needs to be [manually triggered via a Github action](https://github.com/TODO_TemplateAuthor/TODO_TemplateModName/actions/workflows/update-rml-manifest.yml). (Reason: It causes volunteers to verify your mod. Don't spam!)
+- A workflow to publish mods on the [Resonite Mod Manifest](https://github.com/resonite-modding-group/resonite-mod-manifest) exists but it needs to be [manually triggered via a Github action](https://github.com/mpmxyz/ResoniteModularSearch/actions/workflows/update-rml-manifest.yml). (Reason: It causes volunteers to verify your mod. Don't spam!)
 
 ## How to get started
 1. [Create a repository](https://github.com/new?template_name=RMLModTemplate&template_owner=mpmxyz) with this as a template!
@@ -50,7 +50,7 @@ It incorporates learnings from [a previous template](https://github.com/mpmxyz/R
   - Click `Add secret`!
 
 ## How to publish a release
-1. Ensure you have incremented the version number in `TODO_TemplateModName.VERSION_CONSTANT`!
+1. Ensure you have incremented the version number in `ResoniteModularSearch.VERSION_CONSTANT`!
 2. Push/merge your changes into the `main` branch on GitHub!
 3. Wait until the workflow `build-release` finished successfully!
 4. Your new version has been released. Edit the release notes to explain your changes!
@@ -59,25 +59,25 @@ It incorporates learnings from [a previous template](https://github.com/mpmxyz/R
 1. [Update the fork](https://github.com/mpmxyz/ResoniteAssemblies/blob/main/README.md#update-workflow) of `mpmxyz/ResoniteAssemblies`!
 2. Either
    - wait until the workflow [`check-for-resonite-updates`](.github/workflows/check-for-resonite-updates.yml) runs automatically (max. 3 hours)
-   - or [trigger it manually](https://github.com/TODO_TemplateAuthor/TODO_TemplateModName/actions/workflows/check-for-resonite-updates.yml).
+   - or [trigger it manually](https://github.com/mpmxyz/ResoniteModularSearch/actions/workflows/check-for-resonite-updates.yml).
    
 ## How to add a release to the Resonite Mod Manifest
 0. Don't forget to check that you have [prepared the workflow](#how-to-setup-the-resonite-mod-manifest-workflow)!
 1. Make sure the release has been created using the workflow `build-release`!
-2. Run the workflow [`Update RML Manifest`](https://github.com/TODO_TemplateAuthor/TODO_TemplateModName/actions/workflows/update-rml-manifest.yml) on the release tag! Release tags are in the format `v<MOD_VERSION>-<RESONITE_VERSION>`.
+2. Run the workflow [`Update RML Manifest`](https://github.com/mpmxyz/ResoniteModularSearch/actions/workflows/update-rml-manifest.yml) on the release tag! Release tags are in the format `v<MOD_VERSION>-<RESONITE_VERSION>`.
 ![Resonite Mod Manifest workflow](Screenshots/rml_workflow.png)
 
 ## The following section can be used as a base for your own README.md:
 
-# TODO_TemplateModName
+# ResoniteModularSearch
 
-[![Auto-Release](https://github.com/TODO_TemplateAuthor/TODO_TemplateModName/actions/workflows/build-release.yml/badge.svg)](https://github.com/TODO_TemplateAuthor/TODO_TemplateModName/actions/workflows/build-release.yml) [![Check for Resonite Updates](https://github.com/TODO_TemplateAuthor/TODO_TemplateModName/actions/workflows/check-for-resonite-updates.yml/badge.svg)](https://github.com/TODO_TemplateAuthor/TODO_TemplateModName/actions/workflows/check-for-resonite-updates.yml)
+[![Auto-Release](https://github.com/mpmxyz/ResoniteModularSearch/actions/workflows/build-release.yml/badge.svg)](https://github.com/mpmxyz/ResoniteModularSearch/actions/workflows/build-release.yml) [![Check for Resonite Updates](https://github.com/mpmxyz/ResoniteModularSearch/actions/workflows/check-for-resonite-updates.yml/badge.svg)](https://github.com/mpmxyz/ResoniteModularSearch/actions/workflows/check-for-resonite-updates.yml)
 
 TODO: The pitch - why should one need this mod?
 
 ## Installation
 1. Install [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader)!
-1. Place [TODO_TemplateModName.dll](https://github.com/TODO_TemplateAuthor/TODO_TemplateModName/releases/latest/download/TODO_TemplateModName.dll) into your `rml_mods` folder! This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a default install. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create this folder for you.
+1. Place [ResoniteModularSearch.dll](https://github.com/mpmxyz/ResoniteModularSearch/releases/latest/download/ResoniteModularSearch.dll) into your `rml_mods` folder! This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a default install. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create this folder for you.
 1. Start the game! If you want to verify that the mod is working you can check your Resonite logs.
 1. TODO: Add extra steps if necessary!
 

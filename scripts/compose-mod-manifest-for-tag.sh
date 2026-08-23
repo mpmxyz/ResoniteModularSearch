@@ -8,7 +8,7 @@ RELEASE_TAG="${RELEASE_TAG:-${1:?Expected: \$RELEASE_TAG or \$1}}"
 #current mod description with version template
 TEMPLATE_FILE="${TEMPLATE_FILE:-../rml-mod.json}"
 #mod manifest file
-TARGET_FILE="${TARGET_FILE:-manifest/TODO_TemplateRMLAuthorID/TODO_TemplateModName/info.json}"
+TARGET_FILE="${TARGET_FILE:-manifest/mpmxyz/ResoniteModularSearch/info.json}"
 #set to "true" to allow replacing an existing version with updated data ("false" would fail in such situations.)
 OVERRIDE_SAME_VERSION="${OVERRIDE_SAME_VERSION:-false}"
 #avoids downloading and hashing of files for testing purposes

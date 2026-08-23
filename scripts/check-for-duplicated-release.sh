@@ -4,8 +4,8 @@ RELEASE_TAG_PATTERN="${RELEASE_TAG_PATTERN:-${1:?Expected: \$RELEASE_TAG_PATTERN
 
 #The defaults will make the build script testable outside of a GitHub workflow.
 GITHUB_OUTPUT="${GITHUB_OUTPUT:-/dev/stdout}"
-GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-TODO_TemplateAuthor}"
-REPOSITORY_NAME="${REPOSITORY_NAME:-$GITHUB_REPOSITORY_OWNER/TODO_TemplateModName}"
+GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-mpmxyz}"
+REPOSITORY_NAME="${REPOSITORY_NAME:-$GITHUB_REPOSITORY_OWNER/ResoniteModularSearch}"
 
 echo "Checking if tag matching $RELEASE_TAG_PATTERN exists..."
 MATCHES="$(git ls-remote --tags "https://github.com/$REPOSITORY_NAME" "$RELEASE_TAG_PATTERN")"

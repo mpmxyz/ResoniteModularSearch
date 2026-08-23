@@ -7,20 +7,20 @@ using HarmonyLib;
 
 using ResoniteModLoader;
 
-namespace TODO_TemplateModName;
+namespace ResoniteModularSearch;
 
-public class TODO_TemplateModName : ResoniteMod {
+public class ResoniteModularSearch : ResoniteMod {
 	internal const string VERSION_CONSTANT = "0.0.0";
-	public override string Name => "TODO_TemplateModName";
-	public override string Author => "TODO_TemplateAuthor";
+	public override string Name => "ResoniteModularSearch";
+	public override string Author => "mpmxyz";
 	public override string Version => VERSION_CONSTANT;
-	public override string Link => "https://github.com/TODO_TemplateAuthor/TODO_TemplateModName/";
+	public override string Link => "https://github.com/mpmxyz/ResoniteModularSearch/";
 
 	[AutoRegisterConfigKey]
 	private static readonly ModConfigurationKey<bool> enabled = new("enabled", "Does the mod do anything?", () => true);
 
 	public override void OnEngineInit() {
-		Harmony harmony = new("TODO_TemplateRMLAuthorID.TODO_TemplateModName");
+		Harmony harmony = new("mpmxyz.ResoniteModularSearch");
 		harmony.PatchAll();
 	}
 

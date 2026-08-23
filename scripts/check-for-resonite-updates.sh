@@ -2,8 +2,8 @@
 
 #The defaults will make the build script testable outside of a GitHub workflow.
 GITHUB_OUTPUT="${GITHUB_OUTPUT:-/dev/stdout}"
-GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-TODO_TemplateAuthor}"
-REPOSITORY_NAME="${REPOSITORY_NAME:-$GITHUB_REPOSITORY_OWNER/TODO_TemplateModName}"
+GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-mpmxyz}"
+REPOSITORY_NAME="${REPOSITORY_NAME:-$GITHUB_REPOSITORY_OWNER/ResoniteModularSearch}"
 
 echo "Checking for current Resonite version..."
 SAFE_VERSION_PATTERN='^[a-zA-Z0-9_\.\-]+$' #SECURITY: prevents interpretation when written into $GITHUB_OUTPUT
