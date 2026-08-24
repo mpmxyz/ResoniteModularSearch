@@ -11,15 +11,22 @@ namespace ResoniteModularSearch;
 
 public class ResoniteModularSearch : ResoniteMod {
 	internal const string VERSION_CONSTANT = "0.0.1";
+
 	public override string Name => "ResoniteModularSearch";
 	public override string Author => "mpmxyz";
 	public override string Version => VERSION_CONSTANT;
 	public override string Link => "https://github.com/mpmxyz/ResoniteModularSearch/";
 
-	[AutoRegisterConfigKey]
-	private static readonly ModConfigurationKey<bool> enabled = new("enabled", "Does the mod do anything?", () => true);
+	public static bool Enabled => enabled.Value;
 
-	public override void OnEngineInit() {
+    public static bool LogExceptions => logExceptions.Value;
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<bool> enabled = new("enabled", "Does the mod do anything?", () => true);
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<bool> logExceptions = new("logExceptions", "How to handle errors during replace operations.", () => true);
+    public override void OnEngineInit() {
 		Harmony harmony = new("mpmxyz.ResoniteModularSearch");
 		harmony.PatchAll();
 	}

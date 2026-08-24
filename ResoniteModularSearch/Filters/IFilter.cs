@@ -23,30 +23,20 @@ internal interface IFilter {
 	string Name { get; }
 
 	/// <summary>
-	/// Only true if the current configuration is valid to try to match objects
+	/// True, if the filter configuration is in a valid state
 	/// </summary>
-	bool IsValid { get; }
+    public bool IsValid { get; }
 
-	/// <summary>
-	/// This property allows users to temporarily disable a filter.
-	/// </summary>
-	bool IsActive { get; set; }
-
-	/// <summary>
-	/// A list of actions supported by this filter (i.e. "Replace")
-	/// </summary>
-	List<IFilterAction> FilterAction { get; }
+    /// <summary>
+    /// A list of actions supported by this filter (i.e. "Replace")
+    /// </summary>
+    List<IFilterAction> FilterAction { get; }
 
 	/// <summary>
 	/// Tries to match an element with the given filter.
+	/// TODO: This should be upgraded to a function returning the actual matching function. (-> create readonly copy of config)
 	/// </summary>
 	/// <param name="element">Slot, component, field or similar that should be checked.</param>
 	/// <returns>true, if the element matches the criteria given by the filter</returns>
-	bool Matches(IWorldElement element);
-
-	/// <summary>
-	/// Creates the UI used to configure the filter
-	/// </summary>
-	/// <param name="builder"></param>
-	void BuildUI(UIBuilder builder);
+	bool Match(IWorldElement element);
 }

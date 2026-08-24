@@ -3,7 +3,7 @@
 /// <summary>
 /// Result of an <see cref="IFilterAction"/>.
 /// </summary>
-internal enum FilterActionResult {
+public enum FilterActionResult {
 	/// <summary>
 	/// An error occurred while applying the operation.
 	/// </summary>

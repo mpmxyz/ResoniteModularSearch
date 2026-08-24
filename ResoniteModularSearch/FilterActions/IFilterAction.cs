@@ -5,7 +5,7 @@ namespace ResoniteModularSearch.Operations;
 /// <summary>
 /// An action that can be applied to search results
 /// </summary>
-internal interface IFilterAction {
+public interface IFilterAction {
 	/// <summary>
 	/// Name used to describe the operation
 	/// </summary>
