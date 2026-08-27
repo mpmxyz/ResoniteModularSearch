@@ -1,4 +1,4 @@
-﻿namespace ResoniteModularSearch.Filters;
+﻿namespace ResoniteModularSearch.Filters.TODO;
 
 /// <summary>
 /// This filter will try to find all dynamic impulse receivers matching a pattern (tag(regex) + type)

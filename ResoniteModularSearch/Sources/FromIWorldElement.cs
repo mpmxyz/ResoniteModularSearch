@@ -2,11 +2,18 @@
 using FrooxEngine;
 using FrooxEngine.UIX;
 
+using ResoniteModularSearch.DataModel;
+
 namespace ResoniteModularSearch.Sources;
-internal class FromIWorldElement(World world) : ISearchSource {
+internal class FromIWorldElement : ISearchSource {
+    internal IWorldElement? SearchRoot { get; set; }
+
     public static ISearchSource Create(Slot slot, UIBuilder builder) {
-        return new FromIWorldElement(slot.World);
+        FromIWorldElement source = new();
+        source.SearchRoot = slot.World.RootSlot;
+        slot.CreateReferenceProperty(builder, "Search Root", source.SearchRoot, (value) => source.SearchRoot = value);
+        return source;
     }
 
-    public IEnumerable<IWorldElement> RootElements => [world.RootSlot];
+    public IEnumerable<IWorldElement> RootElements => SearchRoot != null ? [SearchRoot] : [];
 }

@@ -3,6 +3,7 @@ using FrooxEngine;
 using FrooxEngine.UIX;
 using FrooxEngine.Undo;
 
+using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.Operations;
 
 namespace ResoniteModularSearch.Filters;
@@ -15,10 +16,14 @@ internal class ReferenceFilter : IFilter {
 
     public bool IsValid => SearchFor == null || !SearchFor.IsRemoved;
 
-    public List<IFilterAction> FilterAction => [new ReplaceAction(this)];
+    public List<IFilterAction> FilterActions => [new ReplaceAction(this)];
 
     public static IFilter Create(Slot slot, UIBuilder builder) {
-        throw new NotImplementedException();
+        var filter = new ReferenceFilter();
+        slot.CreateReferenceProperty(builder, "Search for", filter.SearchFor, (value) => filter.SearchFor = value);
+        slot.CreateReferenceProperty(builder, "Replace with", filter.ReplaceWith, (value) => filter.ReplaceWith = value);
+        slot.CreateValueProperty(builder, "Invert Match", filter.IsInverted, (value) => filter.IsInverted = value);
+        return filter;
     }
 
     public bool Match(IWorldElement element) {

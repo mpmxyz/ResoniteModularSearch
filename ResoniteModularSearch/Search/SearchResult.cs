@@ -1,13 +1,20 @@
 ﻿
+using System.Collections.ObjectModel;
+
 using FrooxEngine;
 
 namespace ResoniteModularSearch.Search;
 
-internal class SearchResult {
+public class SearchResult {
     private readonly ISet<IWorldElement> results;
     private readonly Dictionary<IWorldElement, int> recursiveResultCount;
     private readonly Dictionary<Slot, int> directSlotResultCount;
     private readonly Dictionary<User, int> directUserResultCount;
+
+    public ReadOnlySet<IWorldElement> Results => results.AsReadOnly();
+    public ReadOnlyDictionary<IWorldElement, int> RecursiveResultCount => recursiveResultCount.AsReadOnly();
+    public ReadOnlyDictionary<Slot, int> DirectSlotResultCount => directSlotResultCount.AsReadOnly();
+    public ReadOnlyDictionary<User, int> DirectUserResultCount => directUserResultCount.AsReadOnly();
 
     public SearchResult(ISet<IWorldElement> results) {
         this.results = results;

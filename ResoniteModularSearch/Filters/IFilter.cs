@@ -25,12 +25,12 @@ internal interface IFilter {
 	/// <summary>
 	/// True, if the filter configuration is in a valid state
 	/// </summary>
-    public bool IsValid { get; }
+	public bool IsValid { get; }
 
-    /// <summary>
-    /// A list of actions supported by this filter (i.e. "Replace")
-    /// </summary>
-    List<IFilterAction> FilterAction { get; }
+	/// <summary>
+	/// A list of actions supported by this filter (i.e. "Replace")
+	/// </summary>
+	List<IFilterAction> FilterActions { get; }
 
 	/// <summary>
 	/// Tries to match an element with the given filter.

@@ -2,6 +2,7 @@
 using Elements.Core;
 
 using FrooxEngine;
+using FrooxEngine.UIX;
 
 using HarmonyLib;
 
@@ -38,8 +39,10 @@ public class ResoniteModularSearch : ResoniteMod {
 	class DevTool_GenerateMenuItems_Patch {
 		public static void Postfix(InteractionHandler tool, ContextMenu menu) {
 			if (enabled.Value) {
-				menu.AddLocalActionItem("DummyItem", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
-					b.World.Debug.Text(ev.globalPoint, "Hello World!", colorX.White);
+				menu.AddLocalActionItem("Search", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
+					var slot = b.World.RootSlot.AddSlot("Search Window");
+					var builder = new UIBuilder(slot);
+					SearchWindow.Create(slot, builder);
 				});
 			}
 		}
