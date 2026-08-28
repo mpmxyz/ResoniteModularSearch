@@ -6,23 +6,30 @@ using FrooxEngine;
 namespace ResoniteModularSearch.Search;
 
 public class SearchResult {
+    private readonly ISet<IWorldElement> searchRoots;
     private readonly ISet<IWorldElement> results;
     private readonly Dictionary<IWorldElement, int> recursiveResultCount;
     private readonly Dictionary<Slot, int> directSlotResultCount;
     private readonly Dictionary<User, int> directUserResultCount;
 
+    public ReadOnlySet<IWorldElement> SearchRoots => searchRoots.AsReadOnly();
     public ReadOnlySet<IWorldElement> Results => results.AsReadOnly();
     public ReadOnlyDictionary<IWorldElement, int> RecursiveResultCount => recursiveResultCount.AsReadOnly();
     public ReadOnlyDictionary<Slot, int> DirectSlotResultCount => directSlotResultCount.AsReadOnly();
     public ReadOnlyDictionary<User, int> DirectUserResultCount => directUserResultCount.AsReadOnly();
 
-    public SearchResult(ISet<IWorldElement> results) {
+    public SearchResult(ISet<IWorldElement> searchRoots, ISet<IWorldElement> results) {
+        this.searchRoots = searchRoots;
         this.results = results;
         recursiveResultCount = [];
         directSlotResultCount = [];
         directUserResultCount = [];
 
         UpdateResultCounts();
+    }
+
+    public SearchResult() : this(new HashSet<IWorldElement>([]), new HashSet<IWorldElement>([])) {
+
     }
 
     /// <summary>

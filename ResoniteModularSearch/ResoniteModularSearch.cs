@@ -33,18 +33,38 @@ public class ResoniteModularSearch : ResoniteMod {
 	}
 
 	/// <summary>
-	/// This is a minimum example of a mod that adds an action to display "Hello World!" to the DevTool.
+	/// Adds a menu to the dev tool for search and replace operations (TODO: move to create new... unless reference is grabbed?)
 	/// </summary>
 	[HarmonyPatch(typeof(DevTool), nameof(DevTool.GenerateMenuItems))]
 	class DevTool_GenerateMenuItems_Patch {
 		public static void Postfix(InteractionHandler tool, ContextMenu menu) {
 			if (enabled.Value) {
 				menu.AddLocalActionItem("Search", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
-					var slot = b.World.RootSlot.AddSlot("Search Window");
-					var builder = new UIBuilder(slot);
-					SearchWindow.Create(slot, builder);
+                    //TODO: adjust search root based on grabbed references
+                    Slot slot = b.World.RootSlot.AddSlot("Search Window");
+                    slot.PositionInFrontOfUser(float3.Backward);
+                    slot.DestroyWhenUserLeaves(slot.LocalUser);
+                    slot.ScaleToUser(slot.LocalUser);
+                    SearchWindow.Create(slot);
 				});
 			}
 		}
-	}
+    }
+    /// <summary>
+    /// This will hide all UserInspectors without any (child) results that are part of a search display window.
+    /// Visible UserInspector's text is updated to show the number of results.
+    /// </summary>
+    [HarmonyPatch(typeof(SlotInspector), "OnChanges")]
+    class SlotInspector_OnChanges_Patch {
+        public static void Prefix(SlotInspector __instance) {
+            SearchResultDisplay.PropagateSlotInspectorFiltering(__instance);
+        }
+        public static void Postfix(SlotInspector __instance, SyncRef<Slot> ____rootSlot, SyncRef<Text> ____slotNameText) {
+            var rootSlot = ____rootSlot?.Target;
+            var displayedText = ____slotNameText.Target?.Content;
+            if (rootSlot != null && displayedText != null) {
+                SearchResultDisplay.UpdateSlotInspectorVisibilityAndText(__instance, rootSlot, displayedText);
+            }
+        }
+    }
 }

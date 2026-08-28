@@ -25,11 +25,9 @@ internal class RegexFilter : IFilter {
 
     public List<IFilterAction> FilterActions => [new ReplaceAction(this)];
 
-    public static IFilter Create(Slot slot, UIBuilder builder) {
-        var filter = new RegexFilter();
-        slot.CreateValueProperty(builder, "Search for", filter.RawSearchFor, (value) => filter.RawSearchFor = value);
-        slot.CreateValueProperty(builder, "Replace with", filter.ReplaceWith, (value) => filter.ReplaceWith = value);
-        return filter;
+    public void Setup(Slot slot, UIBuilder builder) {
+        slot.CreateValueProperty(builder, "Search for", RawSearchFor, (value) => RawSearchFor = value);
+        slot.CreateValueProperty(builder, "Replace with", ReplaceWith, (value) => ReplaceWith = value);
     }
 
     public bool Match(IWorldElement element) {

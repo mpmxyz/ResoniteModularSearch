@@ -5,21 +5,23 @@ using ResoniteModularSearch.Sources;
 
 namespace ResoniteModularSearch.Search;
 internal class SearchAlgorithm {
-    public static SearchResult RunSearch(ISearchSource source, IFilter query) {
+    public static SearchResult RunSearch(ISearchSource source, IFilter query, Func<IWorldElement, bool> mask) {
         HashSet<IWorldElement> matchingItems=[];
         IEnumerable<IWorldElement> rootElements = source.RootElements;
-        InternalRunSearch(rootElements, query, matchingItems);
-        return new(matchingItems);
+        InternalRunSearch(rootElements, query, mask, matchingItems);
+        return new(new HashSet<IWorldElement>(rootElements), matchingItems);
     }
 
-    private static void InternalRunSearch(IEnumerable<IWorldElement> items, IFilter query, HashSet<IWorldElement> matchingItems) {
+    private static void InternalRunSearch(IEnumerable<IWorldElement> items, IFilter query, Func<IWorldElement, bool> mask, HashSet<IWorldElement> matchingItems) {
         foreach (var item in items) {
-            if (query.Match(item)) {
-                matchingItems.Add(item);
+            if (mask(item)) {
+                if (query.Match(item)) {
+                    matchingItems.Add(item);
+                }
+                //TODO: a way to skip parts of the recursion (i.e. no iteration over properties if filter only matches slots)
+                //Idea: add flag to query that specifies a filter to GetChildren
+                InternalRunSearch(GetChildren(item), query, mask, matchingItems);
             }
-            //TODO: a way to skip parts of the recursion (i.e. no iteration over properties if filter only matches slots)
-            //Idea: add flag to query that specifies a filter to GetChildren
-            InternalRunSearch(GetChildren(item), query, matchingItems);
         }
     }
 

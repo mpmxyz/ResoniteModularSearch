@@ -10,12 +10,11 @@ namespace ResoniteModularSearch.Filters;
 /// </summary>
 internal interface IFilter {
 	/// <summary>
-	/// Instantiates a filter and integrates its UI into a search window
+	/// instantiates and integrates UI into a search request panel
 	/// </summary>
 	/// <param name="slot">can be used to store data</param>
 	/// <param name="builder">can be used to create the UI for options and actions</param>
-	/// <returns>a new filter instance</returns>
-	static abstract IFilter Create(Slot slot, UIBuilder builder);
+	void Setup(Slot slot, UIBuilder builder);
 
 	/// <summary>
 	/// Name used to describe the filter

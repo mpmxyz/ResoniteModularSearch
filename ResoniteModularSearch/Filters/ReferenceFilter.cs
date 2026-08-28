@@ -1,7 +1,6 @@
 ﻿
 using FrooxEngine;
 using FrooxEngine.UIX;
-using FrooxEngine.Undo;
 
 using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.Operations;
@@ -18,12 +17,10 @@ internal class ReferenceFilter : IFilter {
 
     public List<IFilterAction> FilterActions => [new ReplaceAction(this)];
 
-    public static IFilter Create(Slot slot, UIBuilder builder) {
-        var filter = new ReferenceFilter();
-        slot.CreateReferenceProperty(builder, "Search for", filter.SearchFor, (value) => filter.SearchFor = value);
-        slot.CreateReferenceProperty(builder, "Replace with", filter.ReplaceWith, (value) => filter.ReplaceWith = value);
-        slot.CreateValueProperty(builder, "Invert Match", filter.IsInverted, (value) => filter.IsInverted = value);
-        return filter;
+    public void Setup(Slot slot, UIBuilder builder) {
+        slot.CreateReferenceProperty(builder, "Search for", SearchFor, (value) => SearchFor = value);
+        slot.CreateReferenceProperty(builder, "Replace with", ReplaceWith, (value) => ReplaceWith = value);
+        slot.CreateValueProperty(builder, "Invert Match", IsInverted, (value) => IsInverted = value);
     }
 
     public bool Match(IWorldElement element) {

@@ -7,8 +7,8 @@ using ResoniteModularSearch.Operations;
 namespace ResoniteModularSearch.Filters;
 internal class ElementTypeFilter : IFilter {
     internal Type SearchFor { get; set; } = typeof(object);
-    internal bool IncludeSubtypes { get; set; }
-    internal bool IsInverted { get; set; }
+    internal bool IncludeSubtypes { get; set; } = false;
+    internal bool IsInverted { get; set; } = false;
 
     public string Name => "Element Type";
 
@@ -16,12 +16,10 @@ internal class ElementTypeFilter : IFilter {
 
     public List<IFilterAction> FilterActions => [];
 
-    public static IFilter Create(Slot slot, UIBuilder builder) {
-        var filter = new ElementTypeFilter();
-        slot.CreateTypeProperty(builder, "Element Type", filter.SearchFor, (value) => filter.SearchFor = value);
-        slot.CreateValueProperty(builder, "Include Subtypes", filter.IncludeSubtypes, (value) => filter.IncludeSubtypes = value);
-        slot.CreateValueProperty(builder, "Invert Match", filter.IsInverted, (value) => filter.IsInverted = value);
-        return filter;
+    public void Setup(Slot slot, UIBuilder builder) {
+        slot.CreateTypeProperty(builder, "Element Type", SearchFor, (value) => SearchFor = value);
+        slot.CreateValueProperty(builder, "Include Subtypes", IncludeSubtypes, (value) => IncludeSubtypes = value);
+        slot.CreateValueProperty(builder, "Invert Match", IsInverted, (value) => IsInverted = value);
     }
 
     public bool Match(IWorldElement element) {
