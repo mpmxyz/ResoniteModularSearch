@@ -7,9 +7,11 @@ namespace ResoniteModularSearch;
 internal class SearchWindow {
     public static SearchWindow Create(Slot slot) {
         var builder = new UIBuilder(slot);
-        builder = RadiantUI_Panel.SetupPanel(slot, "", new float2(1f, 1f));
-        builder.Canvas.UnitScale.Value = 1000; //TODO: test
-        var columns = builder.SplitHorizontally([1,2]);
+        builder = RadiantUI_Panel.SetupPanel(slot, "", new float2(2f, 1f));
+        builder.Style.ForceExpandHeight = false;
+        builder.Style.ChildAlignment = Alignment.TopLeft;
+        builder.Canvas.UnitScale.Value = 1000;
+        var columns = builder.SplitHorizontally([3,2]);
         builder.NestInto(columns[0]);
         var searchRequestPanel = SearchRequestPanel.Create(slot, builder, (element) => element != slot);
         builder.NestOut();

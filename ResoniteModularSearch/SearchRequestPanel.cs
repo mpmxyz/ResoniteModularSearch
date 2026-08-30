@@ -1,5 +1,8 @@
-﻿using FrooxEngine;
+﻿using Elements.Core;
+
+using FrooxEngine;
 using FrooxEngine.UIX;
+using FrooxEngine.Undo;
 
 using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.Filters;
@@ -11,27 +14,44 @@ namespace ResoniteModularSearch;
 internal class SearchRequestPanel(ISearchSource source, IFilter filter, Func<IWorldElement, bool> mask) {
     public ISearchSource Source { get; set; } = source;
     public IFilter Filter { get; set; } = filter;
+
+    /// <summary>
+    /// This mask is a workaround against search/replace finding and replacing itself.
+    /// </summary>
     public Func<IWorldElement, bool> Mask { get; set; } = mask;
 
     public SearchResult LastResult { get; private set; } = new SearchResult();
     public event Action<SearchResult>? SearchCompleted;
-    public event Action<string> OnStatusChange=ResoniteModularSearch.Msg;
+    public event Action<string> OnStatusChange = ResoniteModularSearch.Msg;
+    private World? CurrentWorld { get; set; } = null;
 
     public static SearchRequestPanel Create(Slot slot, UIBuilder builder, Func<IWorldElement, bool> mask) {
         builder.VerticalLayout();
 
         ISearchSource dummySource = FromIWorldElement.Create(slot, builder);
-        IFilter dummyFilter = new RegexFilter();
-        dummyFilter.Setup(slot, builder);
+        IFilter rootFilter = new FilterList();
 
-        SearchRequestPanel panel = new(dummySource, dummyFilter, mask);
+        builder.PushStyle();
+        builder.Style.FlexibleHeight = 1f;
+        builder.ScrollArea();
+        builder.FitContent(SizeFit.Disabled, SizeFit.MinSize);
+        builder.PopStyle();
+        builder.PushStyle();
+        builder.Style.SupressLayoutElement = true;
+        builder.VerticalLayout();
+        builder.PopStyle();
+        rootFilter.Setup(builder);
+        builder.NestOut();
+        //builder.NestOut(); Note: ScrollArea + VerticalLayout is only 1 level of nesting!
+
+        SearchRequestPanel panel = new(dummySource, rootFilter, mask);
+        rootFilter.ApplyAction = panel.RunAction;
         InfoText? info = null;
-        foreach (var action in dummyFilter.FilterActions) {
-            ButtonAction.Create(slot, builder, action.Name, () => panel.RunAction(action));
-        }
-        ButtonAction.Create(slot, builder, "Search", panel.RunSearch);
-        info = InfoText.Create(slot, builder, "");
+        ButtonAction.Create(builder, "Search", panel.RunSearch);
+        info = InfoText.Create(builder, "");
         panel.OnStatusChange += (msg) => info.Text = msg;
+        panel.CurrentWorld = slot.World;
+        builder.NestOut();
         return panel;
     }
 
@@ -43,19 +63,27 @@ internal class SearchRequestPanel(ISearchSource source, IFilter filter, Func<IWo
     }
 
     public void RunAction(IFilterAction action) {
-        //TODO - bug: search/replace config replaces itself
         int nSuccess = 0;
         int nFailed = 0;
+        CurrentWorld?.BeginUndoBatch(action.Name);
         foreach (var item in LastResult.Results) {
-            switch (action.TryApplyTo(item)) {
-                case FilterActionResult.Success:
-                    nSuccess++;
-                    break;
-                case FilterActionResult.Failed:
-                    nFailed++;
-                    break;
+            try {
+                switch (action.TryApplyTo(item)) {
+                    case FilterActionResult.Success:
+                        nSuccess++;
+                        break;
+                    case FilterActionResult.Failed:
+                        nFailed++;
+                        break;
+                }
+            } catch (Exception e) {
+                if (ResoniteModularSearch.LogExceptions) {
+                    ResoniteModularSearch.Error($"Failed to apply action on: {item}\n{e}");
+                }
+                nFailed++;
             }
         }
+        CurrentWorld?.EndUndoBatch();
         OnStatusChange($"{nSuccess} changes, {nFailed} failures");
     }
 }

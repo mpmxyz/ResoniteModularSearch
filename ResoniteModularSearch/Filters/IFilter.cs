@@ -2,19 +2,19 @@
 using FrooxEngine.UIX;
 
 using ResoniteModularSearch.Operations;
+using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 
 /// <summary>
 /// A filter can be added to a search query to narrow down the results
 /// </summary>
-internal interface IFilter {
+public interface IFilter {
 	/// <summary>
 	/// instantiates and integrates UI into a search request panel
 	/// </summary>
-	/// <param name="slot">can be used to store data</param>
 	/// <param name="builder">can be used to create the UI for options and actions</param>
-	void Setup(Slot slot, UIBuilder builder);
+	void Setup(UIBuilder builder);
 
 	/// <summary>
 	/// Name used to describe the filter
@@ -24,12 +24,12 @@ internal interface IFilter {
 	/// <summary>
 	/// True, if the filter configuration is in a valid state
 	/// </summary>
-	public bool IsValid { get; }
+	bool IsValid { get; }
 
 	/// <summary>
-	/// A list of actions supported by this filter (i.e. "Replace")
+	/// a callback to an element containing this filter that will run the given filter action
 	/// </summary>
-	List<IFilterAction> FilterActions { get; }
+	Action<IFilterAction>? ApplyAction { set; }
 
 	/// <summary>
 	/// Tries to match an element with the given filter.

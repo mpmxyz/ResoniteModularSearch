@@ -6,11 +6,13 @@ using System.Text.RegularExpressions;
 
 using FrooxEngine;
 using FrooxEngine.UIX;
+using FrooxEngine.Undo;
 
 using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.Operations;
 
 namespace ResoniteModularSearch.Filters;
+[Filter("Regular Expression")]
 internal class RegexFilter : IFilter {
     private string? _rawSearchFor;
 
@@ -23,11 +25,14 @@ internal class RegexFilter : IFilter {
 
     public bool IsValid { get; private set; }
 
-    public List<IFilterAction> FilterActions => [new ReplaceAction(this)];
+    public Action<IFilterAction>? ApplyAction { private get; set; }
 
-    public void Setup(Slot slot, UIBuilder builder) {
-        slot.CreateValueProperty(builder, "Search for", RawSearchFor, (value) => RawSearchFor = value);
-        slot.CreateValueProperty(builder, "Replace with", ReplaceWith, (value) => ReplaceWith = value);
+    public void Setup(UIBuilder builder) {
+        builder.VerticalLayout();
+        builder.CreateValueProperty("Search for", RawSearchFor, (value) => RawSearchFor = value);
+        builder.CreateValueProperty("Replace with", ReplaceWith, (value) => ReplaceWith = value);
+        ButtonAction.Create(builder, "Replace", () => ApplyAction?.Invoke(new ReplaceAction(this)));
+        builder.NestOut();
     }
 
     public bool Match(IWorldElement element) {
@@ -55,15 +60,18 @@ internal class RegexFilter : IFilter {
         }
     }
 
-    private string? ReadString(IWorldElement element) {
+    private static string? ReadString(IWorldElement element) {
         if (element is IValue<string> str) {
             return str.Value;
         }
         return null;
     }
 
-    private void WriteString(IWorldElement element, string value) {
+    private static void WriteString(IWorldElement element, string value) {
         if (element is IValue<string> str) {
+            if (str is IField<string> strField) {
+                strField.CreateUndoPoint();
+            }
             str.Value = value;
         }
     }
@@ -80,7 +88,7 @@ internal class RegexFilter : IFilter {
         public bool IsValid => filter.IsValid && filter.ReplaceWith != null;
 
         public FilterActionResult TryApplyTo(IWorldElement element) {
-            string? oldValue = filter.ReadString(element);
+            string? oldValue = ReadString(element);
             if (oldValue == null) {
                 return FilterActionResult.Ignored;
             }
@@ -92,9 +100,8 @@ internal class RegexFilter : IFilter {
             if (!pattern.IsMatch(oldValue)) {
                 return FilterActionResult.Ignored;
             }
-            //TODO: undo point
             string newValue = pattern.Replace(oldValue, replacement);
-            filter.WriteString(element, newValue);
+            WriteString(element, newValue);
             return FilterActionResult.Success;
         }
 

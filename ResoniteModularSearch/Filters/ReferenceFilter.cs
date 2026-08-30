@@ -1,11 +1,14 @@
 ﻿
 using FrooxEngine;
 using FrooxEngine.UIX;
+using FrooxEngine.Undo;
 
 using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.Operations;
 
 namespace ResoniteModularSearch.Filters;
+
+[Filter("Reference")]
 internal class ReferenceFilter : IFilter {
     internal IWorldElement? SearchFor { get; set; }
     internal IWorldElement? ReplaceWith { get; set; }
@@ -15,12 +18,15 @@ internal class ReferenceFilter : IFilter {
 
     public bool IsValid => SearchFor == null || !SearchFor.IsRemoved;
 
-    public List<IFilterAction> FilterActions => [new ReplaceAction(this)];
+    public Action<IFilterAction>? ApplyAction { private get; set; }
 
-    public void Setup(Slot slot, UIBuilder builder) {
-        slot.CreateReferenceProperty(builder, "Search for", SearchFor, (value) => SearchFor = value);
-        slot.CreateReferenceProperty(builder, "Replace with", ReplaceWith, (value) => ReplaceWith = value);
-        slot.CreateValueProperty(builder, "Invert Match", IsInverted, (value) => IsInverted = value);
+    public void Setup(UIBuilder builder) {
+        builder.VerticalLayout();
+        builder.CreateReferenceProperty("Search for", SearchFor, (value) => SearchFor = value);
+        builder.CreateValueProperty("Invert Match", IsInverted, (value) => IsInverted = value);
+        builder.CreateReferenceProperty("Replace with", ReplaceWith, (value) => ReplaceWith = value);
+        ButtonAction.Create(builder, "Replace", () => ApplyAction?.Invoke(new ReplaceAction(this)));
+        builder.NestOut();
     }
 
     public bool Match(IWorldElement element) {
@@ -44,17 +50,10 @@ internal class ReferenceFilter : IFilter {
         public FilterActionResult TryApplyTo(IWorldElement element) {
             if (filter.Match(element)) {
                 if (element is ISyncRef syncRef) {
-                    try{
+                    syncRef.CreateUndoPoint();
 #pragma warning disable CS8601 // Possible null reference assignment.
-                        //TODO: undo point
-                        syncRef.Target = filter.ReplaceWith;
+                    syncRef.Target = filter.ReplaceWith;
 #pragma warning restore CS8601 // Possible null reference assignment.
-                    } catch (Exception e) {
-                        if (ResoniteModularSearch.LogExceptions) {
-                            ResoniteModularSearch.Error($"Failed to write replacement value {filter.ReplaceWith} to: {element}\n{e}");
-                        }
-                        return FilterActionResult.Failed;
-                    }
                     return FilterActionResult.Success;
                 }
             }

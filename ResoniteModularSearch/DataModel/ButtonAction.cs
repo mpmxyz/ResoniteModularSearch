@@ -7,13 +7,16 @@ public class ButtonAction(Button button) {
 
     public bool Enabled { get => button.Enabled; set => button.Enabled = value; }
 
-    public static ButtonAction Create(Slot data, UIBuilder builder, string name, Action action) {
+    public static ButtonAction Create(UIBuilder builder, string name, Action action) {
+        builder.PushStyle();
+        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
         var button = builder.Button(name);
-        var toggleField = data.AttachComponent<ValueField<bool>>();
+        var slot = builder.CurrentRect.Slot;
+        var toggleField = slot.AttachComponent<ValueField<bool>>();
 
         button.SetupToggle(toggleField.Value, null, null);
         toggleField.Value.OnValueChange += (v) => action();
-        
+        builder.PopStyle();
         return new ButtonAction(button);
     }
 }
