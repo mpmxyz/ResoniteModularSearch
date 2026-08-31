@@ -2,7 +2,6 @@
 using FrooxEngine.UIX;
 
 using ResoniteModularSearch.Operations;
-using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 

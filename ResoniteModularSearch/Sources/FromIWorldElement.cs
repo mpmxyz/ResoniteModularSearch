@@ -11,7 +11,7 @@ internal class FromIWorldElement : ISearchSource {
     public static ISearchSource Create(Slot slot, UIBuilder builder) {
         FromIWorldElement source = new();
         source.SearchRoot = slot.World.RootSlot;
-        builder.CreateReferenceProperty("Search Root", source.SearchRoot, (value) => source.SearchRoot = value);
+        builder.CreateReferenceEditor("Search Root", source.SearchRoot, (value) => source.SearchRoot = value);
         return source;
     }
 

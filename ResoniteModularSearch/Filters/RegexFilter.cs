@@ -28,9 +28,9 @@ internal class RegexFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { private get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout();
-        builder.CreateValueProperty("Search for", RawSearchFor, (value) => RawSearchFor = value);
-        builder.CreateValueProperty("Replace with", ReplaceWith, (value) => ReplaceWith = value);
+        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
+        builder.CreateValueEditor("Search for", RawSearchFor, (value) => RawSearchFor = value);
+        builder.CreateValueEditor("Replace with", ReplaceWith, (value) => ReplaceWith = value);
         ButtonAction.Create(builder, "Replace", () => ApplyAction?.Invoke(new ReplaceAction(this)));
         builder.NestOut();
     }

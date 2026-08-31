@@ -4,9 +4,9 @@ using FrooxEngine;
 using FrooxEngine.UIX;
 
 namespace ResoniteModularSearch.DataModel;
-public static class PropertyFactory {
+public static class PropertyEditor {
     private static FieldInfo typeFieldInfo = typeof(TypeField).GetField(nameof(TypeField.Type))!;
-    public static void CreateTypeProperty(this UIBuilder builder, string name, Type initial, Action<Type?> onChange) {
+    public static void CreateTypeEditor(this UIBuilder builder, string name, Type initial, Action<Type?> onChange) {
         builder.PushStyle();
         builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
         var slot = builder.CurrentRect.Slot;
@@ -20,7 +20,7 @@ public static class PropertyFactory {
         builder.PopStyle();
     }
 
-    public static void CreateValueProperty<T>(this UIBuilder builder, string name, T initial, Action<T> onChange) {
+    public static void CreateValueEditor<T>(this UIBuilder builder, string name, T initial, Action<T> onChange) {
         builder.PushStyle();
         builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
         var slot = builder.CurrentRect.Slot;
@@ -34,7 +34,7 @@ public static class PropertyFactory {
         builder.PopStyle();
     }
 
-    public static void CreateReferenceProperty<T>(this UIBuilder builder, string name, T? initial, Action<T?> onChange) where T : class, IWorldElement {
+    public static void CreateReferenceEditor<T>(this UIBuilder builder, string name, T? initial, Action<T?> onChange) where T : class, IWorldElement {
         builder.PushStyle();
         builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
         var slot = builder.CurrentRect.Slot;

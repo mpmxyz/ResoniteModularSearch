@@ -124,13 +124,13 @@ public class SearchResultDisplay {
         builder.NestInto(columns[0]);
         builder.ScrollArea();
         builder.FitContent(SizeFit.Disabled, SizeFit.MinSize);
-        var hierarchyContent = builder.VerticalLayout().Slot;
+        var hierarchyContent = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
         builder.NestOut();
         builder.NestOut();
         builder.NestInto(columns[1]);
         builder.ScrollArea();
         builder.FitContent(SizeFit.Disabled, SizeFit.MinSize);
-        var componentContent = builder.VerticalLayout().Slot;
+        var componentContent = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
         builder.NestOut();
         builder.NestOut();
         var selectionRef = slot.AttachComponent<ReferenceField<IWorldElement>>().Reference;

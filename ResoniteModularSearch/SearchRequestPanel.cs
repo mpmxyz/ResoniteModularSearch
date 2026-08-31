@@ -1,6 +1,4 @@
-﻿using Elements.Core;
-
-using FrooxEngine;
+﻿using FrooxEngine;
 using FrooxEngine.UIX;
 using FrooxEngine.Undo;
 
@@ -26,24 +24,25 @@ internal class SearchRequestPanel(ISearchSource source, IFilter filter, Func<IWo
     private World? CurrentWorld { get; set; } = null;
 
     public static SearchRequestPanel Create(Slot slot, UIBuilder builder, Func<IWorldElement, bool> mask) {
-        builder.VerticalLayout();
+        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING * 3).Slot.Name += " (Search Request Panel)";
 
         ISearchSource dummySource = FromIWorldElement.Create(slot, builder);
         IFilter rootFilter = new FilterList();
 
         builder.PushStyle();
         builder.Style.FlexibleHeight = 1f;
-        builder.ScrollArea();
-        builder.FitContent(SizeFit.Disabled, SizeFit.MinSize);
-        builder.PopStyle();
-        builder.PushStyle();
-        builder.Style.SupressLayoutElement = true;
-        builder.VerticalLayout();
-        builder.PopStyle();
-        rootFilter.Setup(builder);
-        builder.NestOut();
-        //builder.NestOut(); Note: ScrollArea + VerticalLayout is only 1 level of nesting!
-
+        {
+            builder.ScrollArea();
+            builder.FitContent(SizeFit.Disabled, SizeFit.MinSize);
+            builder.PopStyle();
+            builder.PushStyle();
+            builder.Style.SupressLayoutElement = true;
+            builder.VerticalLayout(); //combined with ScrollArea()
+            builder.PopStyle();
+            rootFilter.Setup(builder);
+            builder.NestOut();
+            //builder.NestOut(); Note: ScrollArea + VerticalLayout is only 1 level of nesting!
+        }
         SearchRequestPanel panel = new(dummySource, rootFilter, mask);
         rootFilter.ApplyAction = panel.RunAction;
         InfoText? info = null;

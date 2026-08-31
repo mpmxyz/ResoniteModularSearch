@@ -19,10 +19,10 @@ internal class ElementTypeFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout();
-        builder.CreateTypeProperty("Element Type", SearchFor, (value) => SearchFor = value);
-        builder.CreateValueProperty("Include Subtypes", IncludeSubtypes, (value) => IncludeSubtypes = value);
-        builder.CreateValueProperty("Invert Match", IsInverted, (value) => IsInverted = value);
+        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
+        builder.CreateTypeEditor("Element Type", SearchFor, (value) => SearchFor = value);
+        builder.CreateValueEditor("Include Subtypes", IncludeSubtypes, (value) => IncludeSubtypes = value);
+        builder.CreateValueEditor("Invert Match", IsInverted, (value) => IsInverted = value);
         builder.NestOut();
     }
 

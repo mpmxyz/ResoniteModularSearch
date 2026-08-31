@@ -21,10 +21,10 @@ internal class ReferenceFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { private get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout();
-        builder.CreateReferenceProperty("Search for", SearchFor, (value) => SearchFor = value);
-        builder.CreateValueProperty("Invert Match", IsInverted, (value) => IsInverted = value);
-        builder.CreateReferenceProperty("Replace with", ReplaceWith, (value) => ReplaceWith = value);
+        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
+        builder.CreateReferenceEditor("Search for", SearchFor, (value) => SearchFor = value);
+        builder.CreateValueEditor("Invert Match", IsInverted, (value) => IsInverted = value);
+        builder.CreateReferenceEditor("Replace with", ReplaceWith, (value) => ReplaceWith = value);
         ButtonAction.Create(builder, "Replace", () => ApplyAction?.Invoke(new ReplaceAction(this)));
         builder.NestOut();
     }

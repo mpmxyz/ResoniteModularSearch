@@ -1,5 +1,4 @@
-﻿using FrooxEngine;
-using FrooxEngine.UIX;
+﻿using FrooxEngine.UIX;
 
 namespace ResoniteModularSearch.DataModel;
 public class InfoText(Text text) {
