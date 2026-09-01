@@ -50,21 +50,4 @@ public class ResoniteModularSearch : ResoniteMod {
 			}
 		}
     }
-    /// <summary>
-    /// This will hide all UserInspectors without any (child) results that are part of a search display window.
-    /// Visible UserInspector's text is updated to show the number of results.
-    /// </summary>
-    [HarmonyPatch(typeof(SlotInspector), "OnChanges")]
-    class SlotInspector_OnChanges_Patch {
-        public static void Prefix(SlotInspector __instance) {
-            SearchResultDisplay.PropagateSlotInspectorFiltering(__instance);
-        }
-        public static void Postfix(SlotInspector __instance, SyncRef<Slot> ____rootSlot, SyncRef<Text> ____slotNameText) {
-            var rootSlot = ____rootSlot?.Target;
-            var displayedText = ____slotNameText.Target?.Content;
-            if (rootSlot != null && displayedText != null) {
-                SearchResultDisplay.UpdateSlotInspectorVisibilityAndText(__instance, rootSlot, displayedText);
-            }
-        }
-    }
 }

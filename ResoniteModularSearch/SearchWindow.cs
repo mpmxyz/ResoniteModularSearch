@@ -5,7 +5,7 @@ using FrooxEngine;
 namespace ResoniteModularSearch;
 internal class SearchWindow {
     public static SearchWindow Create(Slot slot) {
-        var builder = RadiantUI_Panel.SetupPanel(slot, "", new float2(2f, 1f));
+        var builder = RadiantUI_Panel.SetupPanel(slot, "Search & Replace", new float2(2f, 1f));
         slot.Tag = "Developer";
         builder.Style.ForceExpandHeight = false;
         builder.Style.ChildAlignment = Alignment.TopLeft;

@@ -8,7 +8,7 @@ public class InfoText(Text text) {
 
     public static InfoText Create(UIBuilder builder, string initial) {
         builder.PushStyle();
-        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT * 3;
+        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE * 3;
         var text = builder.Text(initial);
         builder.PopStyle();
         return new InfoText(text);

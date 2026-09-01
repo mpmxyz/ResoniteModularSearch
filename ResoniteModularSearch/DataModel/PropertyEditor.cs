@@ -5,10 +5,10 @@ using FrooxEngine.UIX;
 
 namespace ResoniteModularSearch.DataModel;
 public static class PropertyEditor {
-    private static FieldInfo typeFieldInfo = typeof(TypeField).GetField(nameof(TypeField.Type))!;
+    private static readonly FieldInfo typeFieldInfo = typeof(TypeField).GetField(nameof(TypeField.Type))!;
     public static void CreateTypeEditor(this UIBuilder builder, string name, Type initial, Action<Type?> onChange) {
         builder.PushStyle();
-        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
+        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
         var slot = builder.CurrentRect.Slot;
         var field = slot.AttachComponent<TypeField>();
         var property = field.Type;
@@ -22,7 +22,7 @@ public static class PropertyEditor {
 
     public static void CreateValueEditor<T>(this UIBuilder builder, string name, T initial, Action<T> onChange) {
         builder.PushStyle();
-        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
+        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
         var slot = builder.CurrentRect.Slot;
         var field = slot.AttachComponent<ValueField<T>>();
         var property = field.Value;
@@ -36,7 +36,7 @@ public static class PropertyEditor {
 
     public static void CreateReferenceEditor<T>(this UIBuilder builder, string name, T? initial, Action<T?> onChange) where T : class, IWorldElement {
         builder.PushStyle();
-        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
+        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
         var slot = builder.CurrentRect.Slot;
         var field = slot.AttachComponent<ReferenceField<T>>();
         var property = field.Reference;

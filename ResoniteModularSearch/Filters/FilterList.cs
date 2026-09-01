@@ -50,7 +50,6 @@ internal class FilterList : IFilter {
         new(false, "Discard")
     ];
     public void Setup(UIBuilder builder) {
-        //      UI idea after initial prototype: tabular layout and radio buttons
         builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING * 2).Slot.Name+=" (Filter List)";
         {
             Slot configListSlot = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING * 2).Slot;
@@ -68,12 +67,12 @@ internal class FilterList : IFilter {
                     knownConfigs[config] = slot;
 
                     builder.PushStyle();
-                    builder.Style.Width = StyleHelpers.DEFAULT_HEIGHT;
+                    builder.Style.Width = StyleHelpers.DEFAULT_MIN_SIZE;
                     {
-                        builder.VerticalLayout().Slot.Name = "Position Arrows";
+                        builder.VerticalLayout().Slot.Name += " (Position Arrows)";
                         builder.PopStyle();
                         builder.PushStyle();
-                        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
+                        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
                         ButtonAction.Create(builder, "↑", () => MoveFilterUp(config));
                         builder.PopStyle();
                         builder.PushStyle();
@@ -81,7 +80,7 @@ internal class FilterList : IFilter {
                         builder.Next("Spacer");
                         builder.PopStyle();
                         builder.PushStyle();
-                        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
+                        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
                         ButtonAction.Create(builder, "↓", () => MoveFilterDown(config));
                         builder.PopStyle();
                         builder.NestOut();
@@ -101,19 +100,19 @@ internal class FilterList : IFilter {
                         builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING).Slot.Name += " (Match Responses)";
                         builder.PopStyle();
                         builder.PushStyle();
-                        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
+                        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
                         builder.CreateSelection("On Match", config.OnMatch, (value) => config.OnMatch = value, optionalResponses);
                         builder.CreateSelection("Else", config.OnMismatch, (value) => config.OnMismatch = value, optionalResponses);
                         builder.PopStyle();
                         builder.NestOut();
                     }
                     builder.PushStyle();
-                    builder.Style.Width = StyleHelpers.DEFAULT_HEIGHT;
+                    builder.Style.Width = StyleHelpers.DEFAULT_MIN_SIZE;
                     {
                         builder.VerticalLayout().Slot.Name += " (Remove)";
                         builder.PopStyle();
                         builder.PushStyle();
-                        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
+                        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
                         ButtonAction.Create(builder, "❌", () => RemoveFilter(config));
                         builder.PopStyle();
                         builder.NestOut();
@@ -161,7 +160,7 @@ internal class FilterList : IFilter {
             builder.CreateSelection("Default", DefaultResult, (value) => DefaultResult = value, requiredResponses);
             builder.PopStyle();
 
-            builder.Spacer(StyleHelpers.DEFAULT_HEIGHT);
+            builder.Spacer(StyleHelpers.DEFAULT_MIN_SIZE);
 
             builder.NestOut();
         }

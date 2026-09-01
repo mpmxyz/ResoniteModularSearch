@@ -48,7 +48,7 @@ public class TypeSelectionInstantiator<T> {
 
 
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout();
+        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
         foreach (var knownConstructor in KnownConstructors) {
             ResoniteModularSearch.Msg(knownConstructor.Name);
             if (TypeFilter == null || TypeFilter(knownConstructor.Type)) {
@@ -58,9 +58,11 @@ public class TypeSelectionInstantiator<T> {
         builder.NestOut();
     }
 
-    public void Setup(World world, string title) {
+    public void Setup(World world, string title, User? user = null) {
         Slot slot = world.LocalUserSpace.AddSlot(title);
-        slot.PositionInFrontOfUser(float3.Backward);
+#pragma warning disable CS8604 // Possible null reference argument.
+        slot.PositionInFrontOfUser(float3.Backward, user: user);
+#pragma warning restore CS8604 // Possible null reference argument.
         slot.DestroyWhenUserLeaves(slot.LocalUser);
         slot.ScaleToUser(slot.LocalUser);
         var builder = RadiantUI_Panel.SetupPanel(slot, $"{title}...", new float2(0.4f,0.8f), pinButton: false);

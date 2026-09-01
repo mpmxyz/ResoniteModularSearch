@@ -4,8 +4,9 @@ using FrooxEngine.UIX;
 
 namespace ResoniteModularSearch.DataModel;
 public static class StyleHelpers {
-    public const float DEFAULT_HEIGHT = 24f;
+    public const float DEFAULT_MIN_SIZE = 24f;
     public const float MATCH_RESPONSE_WIDTH = 400f;
+    public const float MINIMUM_SLOT_NAME_WIDTH = 200f;
     public const float DEFAULT_SPACING = 4f;
 
     public static void CopyStyleProperties(UIStyle source, UIStyle target) {

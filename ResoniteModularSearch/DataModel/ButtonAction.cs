@@ -9,7 +9,7 @@ public class ButtonAction(Button button) {
 
     public static ButtonAction Create(UIBuilder builder, string name, Action action) {
         builder.PushStyle();
-        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
+        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
         var button = builder.Button(name);
         var slot = builder.CurrentRect.Slot;
         var toggleField = slot.AttachComponent<ValueField<bool>>();

@@ -20,7 +20,7 @@ internal class ElementTypeFilter : IFilter {
 
     public void Setup(UIBuilder builder) {
         builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
-        builder.CreateTypeEditor("Element Type", SearchFor, (value) => SearchFor = value);
+        builder.CreateTypeEditor("Element Type", SearchFor, (value) => SearchFor = value ?? SearchFor);
         builder.CreateValueEditor("Include Subtypes", IncludeSubtypes, (value) => IncludeSubtypes = value);
         builder.CreateValueEditor("Invert Match", IsInverted, (value) => IsInverted = value);
         builder.NestOut();

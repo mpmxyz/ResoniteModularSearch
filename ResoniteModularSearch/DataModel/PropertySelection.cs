@@ -12,7 +12,7 @@ public static class PropertySelection {
         var optionList = options.ToList();
         
         builder.PushStyle();
-        builder.Style.Height = StyleHelpers.DEFAULT_HEIGHT;
+        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
         var slot = builder.CurrentRect.Slot;
         var field = slot.AttachComponent<ValueField<int>>();
         var property = field.Value;
