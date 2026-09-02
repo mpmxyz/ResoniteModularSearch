@@ -1,6 +1,5 @@
 ﻿
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 using Elements.Core;
 
@@ -65,11 +64,11 @@ public class SearchResultDisplay {
     public static SearchResultDisplay Create(Slot slot, UIBuilder builder) {
         var columns = builder.SplitHorizontally([1,1]);
         builder.NestInto(columns[0]);
+        builder.CurrentRect.OffsetMin.Value = new(StyleHelpers.DEFAULT_SPACING, 0);
+        builder.CurrentRect.OffsetMax.Value = new(-StyleHelpers.DEFAULT_SPACING, 0);
         builder.ScrollArea();
         builder.FitContent(SizeFit.MinSize, SizeFit.MinSize);
         var hierarchyContentLayout = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
-        hierarchyContentLayout.PaddingLeft.Value = StyleHelpers.DEFAULT_SPACING;
-        hierarchyContentLayout.PaddingRight.Value = StyleHelpers.DEFAULT_SPACING;
         var hierarchyContent = hierarchyContentLayout.Slot;
         builder.NestOut();
         builder.NestOut();
@@ -121,11 +120,17 @@ public class SearchResultDisplay {
                         nDisplayed++;
                         try {
                             if (item is Slot slot && false) {
-                                //TODO
+                                //TODO: special handling?
                             } else if (item is User user && false) {
-                                //TODO
-                            } else if (item is Worker worker && false) {
-                                //TODO
+                                //TODO: special handling?
+                            } else if (item is Worker worker) {
+                                var uiSlot = builder.OverlappingLayout().Slot;
+                                uiSlot.Name += " (Worker)";
+                                var workerInspector = uiSlot.AttachComponent<WorkerInspector>();
+                                workerInspector.Setup(worker);
+                                builder.NestOut();
+                                nDisplayed += worker.SyncMemberCount;
+                                //TODO: count as more than 1
                             } else if (item is ISyncMember syncMember) {
 #pragma warning disable CS8604 // Possible null reference argument.
                                 SyncMemberEditorBuilder.Build(syncMember, syncMember.Name, TryGetSyncMemberFieldInfo(syncMember), builder);

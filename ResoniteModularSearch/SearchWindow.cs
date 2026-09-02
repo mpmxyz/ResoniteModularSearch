@@ -11,7 +11,7 @@ internal class SearchWindow {
         builder.Style.ChildAlignment = Alignment.TopLeft;
         builder.Canvas.UnitScale.Value = 1000;
 
-        var columns = builder.SplitHorizontally([3,2]);
+        var columns = builder.SplitHorizontally([2,2]);
         builder.NestInto(columns[0]);
         var searchRequestPanel = SearchRequestPanel.Create(slot, builder, (element) => element != slot);
         builder.NestOut();

@@ -2,7 +2,6 @@
 using Elements.Core;
 
 using FrooxEngine;
-using FrooxEngine.UIX;
 
 using HarmonyLib;
 
@@ -40,9 +39,11 @@ public class ResoniteModularSearch : ResoniteMod {
 		public static void Postfix(InteractionHandler tool, ContextMenu menu) {
 			if (enabled.Value) {
 				menu.AddLocalActionItem("Search", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
-                    //TODO: adjust search root based on grabbed references
+					if (tool?.Grabber?.GrabbedObjects?.Count > 0) {
+                        //TODO: adjust search root based on grabbed references
+                    }
                     Slot slot = b.World.RootSlot.AddSlot("Search Window");
-                    slot.PositionInFrontOfUser(float3.Backward);
+                    slot.PositionInFrontOfUser(float3.Backward, distance: 1.5f);
                     slot.DestroyWhenUserLeaves(slot.LocalUser);
                     slot.ScaleToUser(slot.LocalUser);
                     SearchWindow.Create(slot);

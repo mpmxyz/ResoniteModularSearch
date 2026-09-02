@@ -14,22 +14,18 @@ using ResoniteModularSearch.Operations;
 namespace ResoniteModularSearch.Filters;
 [Filter("Regular Expression")]
 internal class RegexFilter : IFilter {
-    private string? _rawSearchFor;
-
-    public string? RawSearchFor { get => _rawSearchFor; set { _rawSearchFor = value; UpdateRegex(); } }
-
     private Regex? SearchFor { get; set; }
     private string? ReplaceWith { get; set; }
 
     public string Name => "Regular Expression";
 
-    public bool IsValid { get; private set; }
+    public bool IsValid { get => SearchFor != null; }
 
     public Action<IFilterAction>? ApplyAction { private get; set; }
 
     public void Setup(UIBuilder builder) {
         builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
-        builder.CreateValueEditor("Search for", RawSearchFor, (value) => RawSearchFor = value);
+        builder.CreateRegexEditor("Search for", SearchFor, (value) => SearchFor = value);
         builder.CreateValueEditor("Replace with", ReplaceWith, (value) => ReplaceWith = value);
         ButtonAction.Create(builder, "Replace", () => ApplyAction?.Invoke(new ReplaceAction(this)));
         builder.NestOut();
@@ -45,19 +41,6 @@ internal class RegexFilter : IFilter {
             return false;
         }
         return pattern.IsMatch(value);
-    }
-
-    private void UpdateRegex() {
-        SearchFor = TryCompile(RawSearchFor);
-        IsValid = SearchFor != null;
-    }
-
-    private static Regex? TryCompile(string? source) {
-        try {
-            return source != null ? new Regex(source) : null;
-        } catch {
-            return null;
-        }
     }
 
     private static string? ReadString(IWorldElement element) {

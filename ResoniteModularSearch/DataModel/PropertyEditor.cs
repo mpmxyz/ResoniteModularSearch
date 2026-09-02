@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.RegularExpressions;
 
 using FrooxEngine;
 using FrooxEngine.UIX;
@@ -6,14 +7,16 @@ using FrooxEngine.UIX;
 namespace ResoniteModularSearch.DataModel;
 public static class PropertyEditor {
     private static readonly FieldInfo typeFieldInfo = typeof(TypeField).GetField(nameof(TypeField.Type))!;
-    public static void CreateTypeEditor(this UIBuilder builder, string name, Type initial, Action<Type?> onChange) {
+    public static void CreateTypeEditor(this UIBuilder builder, string name, Type? initial, Action<Type?> onChange) {
         builder.PushStyle();
         builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
         var slot = builder.CurrentRect.Slot;
         var field = slot.AttachComponent<TypeField>();
         var property = field.Type;
         SyncMemberEditorBuilder.Build(property, name, typeFieldInfo, builder);
+#pragma warning disable CS8601 // Possible null reference assignment.
         property.Value = initial;
+#pragma warning restore CS8601 // Possible null reference assignment.
         property.OnValueChange += (e) => {
             onChange(e.Value);
         };
@@ -48,5 +51,17 @@ public static class PropertyEditor {
             onChange(e.Target);
         };
         builder.PopStyle();
+    }
+
+    public static void CreateRegexEditor(this UIBuilder builder, string name, Regex? initial, Action<Regex?> onChange) {
+        CreateValueEditor(builder, name, initial?.ToString(), value => onChange(TryCompile(value)));
+    }
+
+    private static Regex? TryCompile(string? source) {
+        try {
+            return source != null ? new Regex(source) : null;
+        } catch {
+            return null;
+        }
     }
 }
