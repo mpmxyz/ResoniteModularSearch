@@ -15,7 +15,17 @@ internal class HierarchyFilter : IFilter {
 
     public string Name => "Hierarchy";
 
-    public bool IsValid => IsParentOf == null || !IsParentOf.IsRemoved;
+    public bool IsValid {
+        get {
+            if (IsParentOf != null && IsParentOf.IsRemoved) {
+                return false;
+            }
+            if (IsChildOf != null && IsChildOf.IsRemoved) {
+                return false;
+            }
+            return true;
+        }
+    }
 
     public Action<IFilterAction>? ApplyAction { private get; set; }
 
@@ -29,15 +39,19 @@ internal class HierarchyFilter : IFilter {
 
     public bool Match(IWorldElement element) {
         if (IsChildOf != null) {
-            if (element == IsChildOf && !IncludeSelf) {
-                return false;
+            if (element == IsChildOf) {
+                if (!IncludeSelf) {
+                    return false;
+                }
             } else if (!element.IsChildOfElement(IsChildOf)) {
                 return false;
             }
         }
         if (IsParentOf != null) {
-            if (element == IsParentOf && !IncludeSelf) {
-                return false;
+            if (element == IsParentOf) {
+                if (!IncludeSelf) {
+                    return false;
+                }
             } else if (!IsParentOf.IsChildOfElement(element)) {
                 return false;
             }
