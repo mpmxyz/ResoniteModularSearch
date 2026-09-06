@@ -3,8 +3,8 @@ using FrooxEngine.UIX;
 using FrooxEngine.Undo;
 
 using ResoniteModularSearch.DataModel;
+using ResoniteModularSearch.FilterActions;
 using ResoniteModularSearch.Filters;
-using ResoniteModularSearch.Operations;
 using ResoniteModularSearch.Search;
 using ResoniteModularSearch.Sources;
 
@@ -18,7 +18,7 @@ internal class SearchRequestPanel(ISearchSource source, IFilter filter, Func<IWo
     /// </summary>
     public Func<IWorldElement, bool> Mask { get; set; } = mask;
 
-    public SearchResult LastResult { get; private set; } = new SearchResult();
+    public SearchResult LastResult { get; private set; } = new();
     public event Action<SearchResult>? SearchCompleted;
     public event Action<string> OnStatusChange = ResoniteModularSearch.Msg;
     private World? CurrentWorld { get; set; } = null;
@@ -67,7 +67,7 @@ internal class SearchRequestPanel(ISearchSource source, IFilter filter, Func<IWo
         CurrentWorld?.BeginUndoBatch(action.Name);
         foreach (var item in LastResult.Results) {
             try {
-                switch (action.TryApplyTo(item)) {
+                switch (action.TryApplyTo(item, LastResult.Context)) {
                     case FilterActionResult.Success:
                         nSuccess++;
                         break;

@@ -1,7 +1,4 @@
-﻿
-using System.Reflection;
-
-using Elements.Core;
+﻿using Elements.Core;
 
 using FrooxEngine;
 using FrooxEngine.UIX;
@@ -111,6 +108,7 @@ public class SearchResultDisplay {
             UIBuilder builder = new(ComponentContentRoot);
             StyleHelpers.CopyStyleProperties(Style, builder.Style);
             int nDisplayed = 0;
+            int nSkipped = 0;
             foreach (var item in DisplayedResult.Results) {
                 //TODO: spread UI generation over multiple frames OR make it wait until scrolled enough
                 //TODO: option to not show anything with selectedItem==null (if UI generation is not limited)
@@ -119,40 +117,27 @@ public class SearchResultDisplay {
                     if (nDisplayed <= MaxDisplayedResults){
                         nDisplayed++;
                         try {
-                            if (item is Slot slot && false) {
-                                //TODO: special handling?
-                            } else if (item is User user && false) {
-                                //TODO: special handling?
-                            } else if (item is Worker worker) {
-                                var uiSlot = builder.OverlappingLayout().Slot;
-                                uiSlot.Name += " (Worker)";
-                                var workerInspector = uiSlot.AttachComponent<WorkerInspector>();
-                                workerInspector.Setup(worker);
-                                builder.NestOut();
-                                nDisplayed += worker.SyncMemberCount;
-                                //TODO: count as more than 1
-                            } else if (item is ISyncMember syncMember) {
-#pragma warning disable CS8604 // Possible null reference argument.
-                                SyncMemberEditorBuilder.Build(syncMember, syncMember.Name, TryGetSyncMemberFieldInfo(syncMember), builder);
-#pragma warning restore CS8604 // Possible null reference argument.
-                            }
+                            nDisplayed += new SearchResultItemView(item, result).TryBuild(builder);
                         } catch (Exception ex) {
                             if (ResoniteModularSearch.LogExceptions) {
                                 ResoniteModularSearch.Error(ex);
                             }
+                            builder.PushStyle();
+                            builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
                             builder.Text(ex.Message).Color.Value = colorX.Red;
+                            builder.PopStyle();
                         }
+                    } else {
+                        nSkipped++;
                     }
                 }
             }
-            //TODO add info if more results are available
+            if (nSkipped > 0) {
+                builder.PushStyle();
+                builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+                builder.Text($"Remaining results without display: {nSkipped}").Color.Value = colorX.Red;
+                builder.PopStyle();
+            }
         });
-    }
-
-    private static FieldInfo? TryGetSyncMemberFieldInfo(ISyncMember syncMember) {
-        if (syncMember.Parent is Worker worker) {
-            return worker.GetSyncMemberFieldInfo(syncMember.Name);
-        }
-        return null;
     }
 }

@@ -4,13 +4,14 @@ using FrooxEngine;
 using FrooxEngine.UIX;
 
 using ResoniteModularSearch.DataModel;
-using ResoniteModularSearch.Operations;
+using ResoniteModularSearch.FilterActions;
+using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 
 [Filter("Sync Member")]
-internal class SyncMemberFilter : IFilter {
-    private Regex? NamePattern { get; set; }
+public class SyncMemberFilter : IFilter {
+    public Regex? NamePattern { get; set; }
 
     public string Name => "Sync Member";
 
@@ -24,7 +25,7 @@ internal class SyncMemberFilter : IFilter {
         builder.NestOut();
     }
 
-    public bool Match(IWorldElement element) {
+    public bool Match(IWorldElement element, SearchContext context) {
         if (element is not ISyncMember member) {
             return false;
         }

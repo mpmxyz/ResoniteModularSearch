@@ -3,15 +3,16 @@ using FrooxEngine;
 using FrooxEngine.UIX;
 
 using ResoniteModularSearch.DataModel;
-using ResoniteModularSearch.Operations;
+using ResoniteModularSearch.FilterActions;
+using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 
 [Filter("Hierarchy")]
-internal class HierarchyFilter : IFilter {
-    internal IWorldElement? IsChildOf { get; set; } = null;
-    internal IWorldElement? IsParentOf { get; set; } = null;
-    internal bool IncludeSelf { get; set; } = false;
+public class HierarchyFilter : IFilter {
+    public IWorldElement? IsChildOf { get; set; } = null;
+    public IWorldElement? IsParentOf { get; set; } = null;
+    public bool IncludeSelf { get; set; } = false;
 
     public string Name => "Hierarchy";
 
@@ -37,7 +38,7 @@ internal class HierarchyFilter : IFilter {
         builder.NestOut();
     }
 
-    public bool Match(IWorldElement element) {
+    public bool Match(IWorldElement element, SearchContext context) {
         if (IsChildOf != null) {
             if (element == IsChildOf) {
                 if (!IncludeSelf) {

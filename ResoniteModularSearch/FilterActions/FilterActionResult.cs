@@ -1,4 +1,4 @@
-﻿namespace ResoniteModularSearch.Operations;
+﻿namespace ResoniteModularSearch.FilterActions;
 
 /// <summary>
 /// Result of an <see cref="IFilterAction"/>.

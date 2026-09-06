@@ -2,15 +2,16 @@
 using FrooxEngine.UIX;
 
 using ResoniteModularSearch.DataModel;
-using ResoniteModularSearch.Operations;
+using ResoniteModularSearch.FilterActions;
+using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 
 [Filter("Element Type")]
-internal class ElementTypeFilter : IFilter {
-    internal Type SearchFor { get; set; } = typeof(object);
-    internal bool IncludeSubtypes { get; set; } = false;
-    internal bool IsInverted { get; set; } = false;
+public class ElementTypeFilter : IFilter {
+    public Type SearchFor { get; set; } = typeof(object);
+    public bool IncludeSubtypes { get; set; } = false;
+    public bool IsInverted { get; set; } = false;
 
     public string Name => "Element Type";
 
@@ -26,7 +27,7 @@ internal class ElementTypeFilter : IFilter {
         builder.NestOut();
     }
 
-    public bool Match(IWorldElement element) {
+    public bool Match(IWorldElement element, SearchContext context) {
         if (SearchFor != null) {
             bool doesMatch;
             if (IncludeSubtypes) {

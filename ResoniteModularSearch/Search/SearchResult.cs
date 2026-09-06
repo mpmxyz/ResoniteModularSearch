@@ -11,16 +11,19 @@ public class SearchResult {
     private readonly Dictionary<IWorldElement, int> recursiveResultCount;
     private readonly Dictionary<Slot, int> directSlotResultCount;
     private readonly Dictionary<User, int> directUserResultCount;
+    private readonly SearchContext context;
 
     public ReadOnlySet<IWorldElement> SearchRoots => searchRoots.AsReadOnly();
     public ReadOnlySet<IWorldElement> Results => results.AsReadOnly();
     public ReadOnlyDictionary<IWorldElement, int> RecursiveResultCount => recursiveResultCount.AsReadOnly();
     public ReadOnlyDictionary<Slot, int> DirectSlotResultCount => directSlotResultCount.AsReadOnly();
     public ReadOnlyDictionary<User, int> DirectUserResultCount => directUserResultCount.AsReadOnly();
+    public SearchContext Context => context;
 
-    public SearchResult(ISet<IWorldElement> searchRoots, ISet<IWorldElement> results) {
+    public SearchResult(ISet<IWorldElement> searchRoots, ISet<IWorldElement> results, SearchContext context) {
         this.searchRoots = searchRoots;
         this.results = results;
+        this.context = context.ToFrozenContext();
         recursiveResultCount = [];
         directSlotResultCount = [];
         directUserResultCount = [];
@@ -28,7 +31,7 @@ public class SearchResult {
         UpdateResultCounts();
     }
 
-    public SearchResult() : this(new HashSet<IWorldElement>([]), new HashSet<IWorldElement>([])) {
+    public SearchResult() : this(new HashSet<IWorldElement>([]), new HashSet<IWorldElement>([]), new SearchContext()) {
 
     }
 

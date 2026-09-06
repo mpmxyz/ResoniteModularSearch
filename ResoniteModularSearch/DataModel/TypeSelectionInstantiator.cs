@@ -61,6 +61,7 @@ public class TypeSelectionInstantiator<T> {
     public void Setup(World world, string title, User? user = null) {
         Slot slot = world.LocalUserSpace.AddSlot(title);
 #pragma warning disable CS8604 // Possible null reference argument.
+        //TODO: create homegrown solution because the mod owner's viewing angle is applied even if user!=null
         slot.PositionInFrontOfUser(float3.Backward, user: user);
 #pragma warning restore CS8604 // Possible null reference argument.
         slot.DestroyWhenUserLeaves(slot.LocalUser);

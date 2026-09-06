@@ -1,7 +1,8 @@
 ﻿using FrooxEngine;
 using FrooxEngine.UIX;
 
-using ResoniteModularSearch.Operations;
+using ResoniteModularSearch.FilterActions;
+using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 
@@ -36,5 +37,5 @@ public interface IFilter {
 	/// </summary>
 	/// <param name="element">Slot, component, field or similar that should be checked.</param>
 	/// <returns>true, if the element matches the criteria given by the filter</returns>
-	bool Match(IWorldElement element);
+	bool Match(IWorldElement element, SearchContext context);
 }

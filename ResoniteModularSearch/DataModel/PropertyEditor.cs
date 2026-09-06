@@ -7,6 +7,8 @@ using FrooxEngine.UIX;
 namespace ResoniteModularSearch.DataModel;
 public static class PropertyEditor {
     private static readonly FieldInfo typeFieldInfo = typeof(TypeField).GetField(nameof(TypeField.Type))!;
+    //TODO: replace initial value by get value callback
+    //TODO: add validation callback
     public static void CreateTypeEditor(this UIBuilder builder, string name, Type? initial, Action<Type?> onChange) {
         builder.PushStyle();
         builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
@@ -54,6 +56,7 @@ public static class PropertyEditor {
     }
 
     public static void CreateRegexEditor(this UIBuilder builder, string name, Regex? initial, Action<Regex?> onChange) {
+        //TODO: highlight if input contains invalid Regex
         CreateValueEditor(builder, name, initial?.ToString(), value => onChange(TryCompile(value)));
     }
 

@@ -2,7 +2,8 @@
 using FrooxEngine.UIX;
 
 using ResoniteModularSearch.DataModel;
-using ResoniteModularSearch.Operations;
+using ResoniteModularSearch.FilterActions;
+using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 
@@ -11,7 +12,7 @@ namespace ResoniteModularSearch.Filters;
 /// If all decisions are neutral, a default is applied.
 /// </summary>
 [Filter("Filter List")]
-internal class FilterList : IFilter {
+public class FilterList : IFilter {
     public class FilterConfig(IFilter filter, bool? onMatch, bool? onMismatch) {
         public IFilter Filter { get; } = filter;
         public bool? OnMatch { get; set; } = onMatch;
@@ -91,6 +92,10 @@ internal class FilterList : IFilter {
                     {
                         builder.VerticalLayout();
                         builder.PopStyle();
+                        builder.PushStyle();
+                        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+                        builder.Text($"<u>{config.Filter.Name}</u>");
+                        builder.PopStyle();
                         config.Filter.Setup(builder);
                         builder.NestOut();
                     }
@@ -150,8 +155,8 @@ internal class FilterList : IFilter {
             builder.PushStyle();
             builder.Style.FlexibleWidth = 1;
             World world = builder.World;
-            ButtonAction.Create(builder, "Add Filter...", () => {
-                new TypeSelectionInstantiator<IFilter>(AddFilter).Setup(world, "Select Filter Type");
+            ButtonAction.Create(builder, "Add Filter...", (user) => {
+                new TypeSelectionInstantiator<IFilter>(AddFilter).Setup(world, "Select Filter Type", user);
             });
             builder.PopStyle();
 
@@ -194,9 +199,9 @@ internal class FilterList : IFilter {
     }
 
 
-    public bool Match(IWorldElement element) {
+    public bool Match(IWorldElement element, SearchContext context) {
         foreach (var config in FilterConfigs) {
-            if (config.Filter.Match(element)) {
+            if (config.Filter.Match(element, context)) {
                 var result = config.OnMatch;
                 if (result.HasValue) {
                     return result.Value;

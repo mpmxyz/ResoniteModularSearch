@@ -9,13 +9,34 @@ using FrooxEngine.UIX;
 using FrooxEngine.Undo;
 
 using ResoniteModularSearch.DataModel;
-using ResoniteModularSearch.Operations;
+using ResoniteModularSearch.FilterActions;
+using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 [Filter("Regular Expression")]
-internal class RegexFilter : IFilter {
-    private Regex? SearchFor { get; set; }
-    private string? ReplaceWith { get; set; }
+public class RegexFilter : IFilter {
+
+    public class ReplaceAction : IFilterAction {
+        private readonly RegexFilter filter;
+
+        public ReplaceAction(RegexFilter filter) {
+            this.filter = filter;
+        }
+
+        public string Name => "Replace";
+        public bool IsValid => filter.IsValid && filter.ReplaceWith != null;
+
+        public FilterActionResult TryApplyTo(IWorldElement element, SearchContext context) {
+            return RegexHelper.ApplyReplace(ReadString(element),
+                                        filter.SearchFor,
+                                        filter.ReplaceWith,
+                                        (newValue) => WriteString(element, newValue));
+
+        }
+    }
+
+    public Regex? SearchFor { get; set; }
+    public string? ReplaceWith { get; set; }
 
     public string Name => "Regular Expression";
 
@@ -31,7 +52,7 @@ internal class RegexFilter : IFilter {
         builder.NestOut();
     }
 
-    public bool Match(IWorldElement element) {
+    public bool Match(IWorldElement element, SearchContext context) {
         Regex? pattern = SearchFor;
         if (pattern == null) {
             return false;
@@ -57,36 +78,5 @@ internal class RegexFilter : IFilter {
             }
             str.Value = value;
         }
-    }
-
-
-    private class ReplaceAction : IFilterAction {
-        private readonly RegexFilter filter;
-
-        public ReplaceAction(RegexFilter filter) {
-            this.filter = filter;
-        }
-
-        public string Name => "Replace";
-        public bool IsValid => filter.IsValid && filter.ReplaceWith != null;
-
-        public FilterActionResult TryApplyTo(IWorldElement element) {
-            string? oldValue = ReadString(element);
-            if (oldValue == null) {
-                return FilterActionResult.Ignored;
-            }
-            Regex? pattern = filter.SearchFor;
-            string? replacement = filter.ReplaceWith;
-            if (pattern == null || replacement == null) {
-                return FilterActionResult.Failed;
-            }
-            if (!pattern.IsMatch(oldValue)) {
-                return FilterActionResult.Ignored;
-            }
-            string newValue = pattern.Replace(oldValue, replacement);
-            WriteString(element, newValue);
-            return FilterActionResult.Success;
-        }
-
     }
 }

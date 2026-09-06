@@ -1,6 +1,8 @@
 ﻿using FrooxEngine;
 
-namespace ResoniteModularSearch.Operations;
+using ResoniteModularSearch.Search;
+
+namespace ResoniteModularSearch.FilterActions;
 
 /// <summary>
 /// An action that can be applied to search results
@@ -21,5 +23,5 @@ public interface IFilterAction {
 	/// </summary>
 	/// <param name="element">The IWorldElement to apply the action to</param>
 	/// <returns>the result of the operation (see <see cref="FilterActionResult"/>) </returns>
-	FilterActionResult TryApplyTo(IWorldElement element);
+	FilterActionResult TryApplyTo(IWorldElement element, SearchContext context);
 }
