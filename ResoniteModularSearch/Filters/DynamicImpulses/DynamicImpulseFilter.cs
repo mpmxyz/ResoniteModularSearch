@@ -37,7 +37,7 @@ public partial class DynamicImpulseFilter : IFilter {
         new(false, "Disabled only"),
     ];
 
-    public ISet<DynamicImpulseElementKind> QueriedKinds { get; set; } = new HashSet<DynamicImpulseElementKind>([DynamicImpulseElementKind.All]);
+    public ISet<DynamicImpulseElementKind> QueriedKinds { get; set; } = new HashSet<DynamicImpulseElementKind>([DynamicImpulseElementKind.ProtoFlux, DynamicImpulseElementKind.ButtonInteraction]);
     public Type? OfType { get; set; } = null;
     public Regex? TagPattern { get; set; } = null;
     public string? ReplaceTagWith { get; set; } = null;

@@ -3,6 +3,5 @@
 public enum DynamicImpulseElementKind {
     None = 0,
     ButtonInteraction = 1,
-    ProtoFlux = 2,
-    All = ButtonInteraction | ProtoFlux
+    ProtoFlux = 2
 }
