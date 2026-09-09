@@ -7,6 +7,7 @@ using FrooxEngine;
 using FrooxEngine.FrooxEngine.ProtoFlux.CoreNodes;
 using FrooxEngine.ProtoFlux;
 using FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes;
+using FrooxEngine.UIX;
 
 using ProtoFlux.Core;
 
@@ -39,6 +40,7 @@ internal static class DynamicVariableHelpers {
         typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.WriteOrCreateDynamicVariable<>),
         typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DeleteDynamicVariable<>),
         typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ClearDynamicVariablesOfType<>),
+        typeof(HoverDynamicValueSet<>),
     ];
 
     private static Type? TryGetVariableType(IWorldElement element) {
@@ -60,74 +62,79 @@ internal static class DynamicVariableHelpers {
         if (type == null) {
             return default;
         }
-        //TODO: make target method private without breaking GetMethod()
         return (T?)typeof(DynamicVariableHelpers).GetGenericMethod(method, BindingFlags.Static | BindingFlags.NonPublic, [type])!.Invoke(null, [element]);
     }
     public static AbstractedDynamicVariableElement TryGetAbstractedDynamicVariableElement(IWorldElement element) {
-        if (element is DynamicVariableSpace space) {
-            return new(kind: DynvarElementKind.Space,
-                       space.SpaceName,
-                       knownSpace: space,
-                       attachedSlot: space?.Slot,
-                       isSpaceOnly: true);
-        } else if (element is FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ClearDynamicVariables node) {
-            return new(kind: DynvarElementKind.ProtoFlux,
-                       TryGuessNodeNameField(node.SpaceName.Target),
-                       attachedSlot: TryGuessNodeSlot(node, node.TypedNodeInstance?.Target),
-                       isSpaceOnly: true);
-        } else {
-            return TryRunForDynamicVariable<AbstractedDynamicVariableElement>(element, nameof(TryGetAbstractedDynamicVariableElement))
-                ?? AbstractedDynamicVariableElement.InvalidElement;
+        switch (element) {
+            case DynamicVariableSpace space:
+                return new(kind: DynamicVariableElementKind.Space,
+                                   space.SpaceName,
+                                   knownSpace: space,
+                                   attachedSlot: space?.Slot,
+                                   isSpaceOnly: true);
+            case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ClearDynamicVariables node:
+                return new(kind: DynamicVariableElementKind.ProtoFlux,
+                                   TryGuessNodeNameField(node.SpaceName.Target),
+                                   attachedSlot: TryGuessNodeSlot(node, node.TypedNodeInstance?.Target),
+                                   isSpaceOnly: true);
+            default:
+                return TryRunForDynamicVariable<AbstractedDynamicVariableElement>(element, nameof(TryGetAbstractedDynamicVariableElement))
+                            ?? AbstractedDynamicVariableElement.InvalidElement;
         }
     }
     private static AbstractedDynamicVariableElement TryGetAbstractedDynamicVariableElement<T>(IWorldElement element) {
         switch (element) {
             case DynamicVariableBase<T> dynvar:
-                return new(kind: DynvarElementKind.Component,
+                return new(kind: DynamicVariableElementKind.Component,
                            nameField: dynvar.VariableName,
                            type: typeof(T),
                            attachedSlot: dynvar.Slot);
             case DynamicVariableResetBase<T> dynvarReset:
-                return new(kind: DynvarElementKind.ProtoFlux,
+                return new(kind: DynamicVariableElementKind.ProtoFlux,
                            nameField: dynvarReset.VariableName,
                            type: typeof(T),
                            attachedSlot: dynvarReset.Slot);
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableInput<T> node:
-                return new(kind: DynvarElementKind.ProtoFlux, 
+                return new(kind: DynamicVariableElementKind.ProtoFlux, 
                            nameField: TryGetFieldFromGlobalValue(node.VariableName.Target),
                            type: typeof(T),
                            attachedSlot: node.Slot);
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ReadDynamicVariable<T> node:
-                return new(kind: DynvarElementKind.ProtoFlux,
+                return new(kind: DynamicVariableElementKind.ProtoFlux,
                            nameField: TryGuessNodeNameField(node.Path.Target),
                            type: typeof(T),
                            attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ReadDynamicVariable<T>)?.Source));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.WriteDynamicVariable<T> node:
-                return new(kind: DynvarElementKind.ProtoFlux,
+                return new(kind: DynamicVariableElementKind.ProtoFlux,
                            nameField: TryGuessNodeNameField(node.Path.Target),
                            type: typeof(T),
                            attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.CreateDynamicVariable<T> node:
-                return new(kind: DynvarElementKind.ProtoFlux,
+                return new(kind: DynamicVariableElementKind.ProtoFlux,
                            nameField: TryGuessNodeNameField(node.Path.Target),
                            type: typeof(T),
                            attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.WriteOrCreateDynamicVariable<T> node:
-                return new(kind: DynvarElementKind.ProtoFlux,
+                return new(kind: DynamicVariableElementKind.ProtoFlux,
                            nameField: TryGuessNodeNameField(node.Path.Target),
                            type: typeof(T),
                            attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DeleteDynamicVariable<T> node:
-                return new(kind: DynvarElementKind.ProtoFlux,
+                return new(kind: DynamicVariableElementKind.ProtoFlux,
                            nameField: TryGuessNodeNameField(node.Path.Target),
                            type: typeof(T),
                            attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ClearDynamicVariablesOfType<T> node:
-                return new(kind: DynvarElementKind.ProtoFlux,
+                return new(kind: DynamicVariableElementKind.ProtoFlux,
                            nameField: TryGuessNodeNameField(node.SpaceName.Target),
                            type: typeof(T),
                            attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target),
                            isSpaceOnly: true);
+            case HoverDynamicValueSet<T> valueSet:
+                return new(kind: DynamicVariableElementKind.ButtonInteraction,
+                           nameField: valueSet.VariableName,
+                           type: typeof(T),
+                           attachedSlot: valueSet.Slot);
             default:
                 throw new NotImplementedException($"Error: Missing implementation to handle type {element.GetType()}");
         }

@@ -11,11 +11,12 @@ namespace ResoniteModularSearch.Filters.DynamicVariables;
 
 [Filter("Dynamic Variable")]
 public partial class DynamicVariableFilter : IFilter {
-    private static readonly OrderedDictionary<DynvarElementKind, string> ElementKindFilterDescriptions = new()
+    private static readonly OrderedDictionary<DynamicVariableElementKind, string> ElementKindFilterDescriptions = new()
     {
-        { DynvarElementKind.Space, "spaces" },
-        { DynvarElementKind.Component, "components" },
-        { DynvarElementKind.ProtoFlux, "ProtoFlux nodes" },
+        { DynamicVariableElementKind.Space, "spaces" },
+        { DynamicVariableElementKind.Component, "components" },
+        { DynamicVariableElementKind.ProtoFlux, "ProtoFlux nodes" },
+        { DynamicVariableElementKind.ButtonInteraction, "Button interaction" },
     };
     private static readonly PropertySelection.Option<bool?>[] LinkOptions =
     [
@@ -30,7 +31,7 @@ public partial class DynamicVariableFilter : IFilter {
         new(false, "Only defined name"),
     ];
 
-    public ISet<DynvarElementKind> QueriedKinds { get; set; } = new HashSet<DynvarElementKind>([DynvarElementKind.Component]);
+    public ISet<DynamicVariableElementKind> QueriedKinds { get; set; } = new HashSet<DynamicVariableElementKind>([DynamicVariableElementKind.Component]);
     public Type? OfType { get; set; } = null;
     public DynamicVariableSpace? WithinSpace { get; set; } = null;
     public Regex? SpaceNamePattern { get; set; } = null;

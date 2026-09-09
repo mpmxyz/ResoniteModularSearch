@@ -2,23 +2,23 @@
 
 namespace ResoniteModularSearch.Filters.DynamicVariables;
 
-internal class AbstractedDynamicVariableElement(DynvarElementKind kind,
+internal class AbstractedDynamicVariableElement(DynamicVariableElementKind kind,
                                                 IField<string>? nameField,
                                                 Type? type = null,
                                                 DynamicVariableSpace? knownSpace = null,
                                                 Slot? attachedSlot = null,
                                                 bool isSpaceOnly = false) {
-    public static readonly AbstractedDynamicVariableElement InvalidElement = new(DynvarElementKind.None, null);
+    public static readonly AbstractedDynamicVariableElement InvalidElement = new(DynamicVariableElementKind.None, null);
 
     private DynamicVariableSpace? KnownSpace = knownSpace;
     private bool SpaceIsInitialized = knownSpace != null;
 
-    public DynvarElementKind Kind { get; } = kind;
+    public DynamicVariableElementKind Kind { get; } = kind;
     public Type? Type { get; } = type;
     public Slot? AttachedSlot { get; } = attachedSlot;
     public IField<string>? NameField { get; } = nameField;
     public bool IsSpaceOnly { get; } = isSpaceOnly;
-    public bool IsValidResult => Kind != DynvarElementKind.None;
+    public bool IsValidResult => Kind != DynamicVariableElementKind.None;
 
     public DynamicVariableSpace? Space {
         get {
