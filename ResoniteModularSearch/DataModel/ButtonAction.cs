@@ -9,11 +9,8 @@ public class ButtonAction(Button button) {
 
     public bool Enabled { get => button.Enabled; set => button.Enabled = value; }
 
-    public static ButtonAction Create(UIBuilder builder, string name, Action<User> action) {
-        builder.PushStyle();
-        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
-        var button = builder.Button(name);
-        var slot = builder.CurrentRect.Slot;
+    public static ButtonAction Create(Button button, Action<User> action, bool dangerous = false, Action<bool>? onLockChanged = null) {
+        var slot = button.Slot;
         var toggleField = slot.AttachComponent<ValueField<bool>>();
         var userField = slot.AttachComponent<ReferenceField<User>>();
 
@@ -25,11 +22,47 @@ public class ButtonAction(Button button) {
         var drive = protoFlux.AttachComponent<ReferenceDrive<User>>();
         drive.Target.Target = localUser;
         drive.TrySetRootTarget(userSet.SetReference);
-        toggleField.Value.OnValueChange += (v) => action(userField.Reference.Target);
-        builder.PopStyle();
+
+        var unlocked = !dangerous;
+        onLockChanged?.Invoke(unlocked);
+        if (dangerous) {
+            button.IsHovering.OnValueChange += (hovering) => {
+                if (dangerous && !hovering && unlocked) {
+                    unlocked = false;
+                    onLockChanged?.Invoke(unlocked);
+                }
+            };
+        }
+
+        toggleField.Value.OnValueChange += (v) => {
+            if (unlocked) {
+                action(userField.Reference.Target);
+                if (dangerous) {
+                    unlocked = false;
+                    onLockChanged?.Invoke(unlocked);
+                }
+            } else {
+                unlocked = true;
+                onLockChanged?.Invoke(unlocked);
+            }
+        };
         return new ButtonAction(button);
+
     }
-    public static ButtonAction Create(UIBuilder builder, string name, Action action) {
-        return Create(builder, name, (user) => action());
+
+    public static ButtonAction Create(UIBuilder builder, string name, Action<User> action, bool dangerous = false) {
+        builder.PushStyle();
+        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+        var button = builder.Button(name);
+
+        void UpdateButtonLabel(bool unlocked) {
+            button.LabelText = dangerous && unlocked ? $"<color=\"red\">{name}?</color>" : name;
+        }
+        var buttonAction = Create(button, action, dangerous, UpdateButtonLabel);
+        builder.PopStyle();
+        return buttonAction;
+    }
+    public static ButtonAction Create(UIBuilder builder, string name, Action action, bool dangerous = false) {
+        return Create(builder, name, (user) => action(), dangerous);
     }
 }

@@ -5,15 +5,14 @@ using FrooxEngine.UIX;
 using ResoniteModularSearch.DataModel;
 
 namespace ResoniteModularSearch.Sources;
-internal class FromIWorldElement : ISearchSource {
-    internal IWorldElement? SearchRoot { get; set; }
 
-    public static ISearchSource Create(Slot slot, UIBuilder builder) {
-        FromIWorldElement source = new();
-        source.SearchRoot = slot.World.RootSlot;
-        builder.CreateReferenceEditor("Search Root", source.SearchRoot, (value) => source.SearchRoot = value);
-        return source;
-    }
+//TODO: change to multiple search roots
+public class FromIWorldElement(IWorldElement searchRoot) : ISearchSource {
+    internal IWorldElement? SearchRoot { get; set; } = searchRoot;
 
     public IEnumerable<IWorldElement> RootElements => SearchRoot != null ? [SearchRoot] : [];
+
+    public void Setup(UIBuilder builder) {
+        builder.CreateReferenceEditor("Search Root", SearchRoot, (value) => SearchRoot = value);
+    }
 }

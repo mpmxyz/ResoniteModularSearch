@@ -156,7 +156,7 @@ public class FilterList : IFilter {
             builder.Style.FlexibleWidth = 1;
             World world = builder.World;
             ButtonAction.Create(builder, "Add Filter...", (user) => {
-                new TypeSelectionInstantiator<IFilter>(AddFilter).Setup(world, "Select Filter Type", user);
+                new FilterSelectionInstantiator<IFilter>(AddFilter).Setup(world, "Select Filter Type", user);
             });
             builder.PopStyle();
 

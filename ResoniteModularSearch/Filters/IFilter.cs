@@ -10,11 +10,16 @@ namespace ResoniteModularSearch.Filters;
 /// A filter can be added to a search query to narrow down the results
 /// </summary>
 public interface IFilter {
-	/// <summary>
-	/// instantiates and integrates UI into a search request panel
-	/// </summary>
-	/// <param name="builder">can be used to create the UI for options and actions</param>
-	void Setup(UIBuilder builder);
+    /// <summary>
+    /// only true if it is permitted to instantiate the filter type (i.e. to limit generic filters to specific types)
+    /// </summary>
+    static bool IsValidType { get => true; }
+
+    /// <summary>
+    /// instantiates and integrates UI into a search request panel
+    /// </summary>
+    /// <param name="builder">can be used to create the UI for options and actions</param>
+    void Setup(UIBuilder builder);
 
 	/// <summary>
 	/// Name used to describe the filter

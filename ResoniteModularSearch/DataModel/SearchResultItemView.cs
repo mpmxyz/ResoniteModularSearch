@@ -31,7 +31,10 @@ public class SearchResultItemView(IWorldElement item, SearchResult result) {
                 var uiSlot = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
                 uiSlot.Name += " (Worker)";
                 var workerInspector = uiSlot.AttachComponent<WorkerInspector>();
-                workerInspector.Setup(worker);
+                builder.PushStyle();
+                //TODO: Slot -> create header
+                workerInspector.Setup(worker, (member) => !(Item is Slot && member is WorkerBag<Component>));
+                builder.PopStyle();
                 nLines += worker.SyncMemberCount;
                 //TODO: outsource additional visuals - like dynvars - into its own auto-discovered builder-chain
                 //TODO: also allow reduced views of components
@@ -39,9 +42,12 @@ public class SearchResultItemView(IWorldElement item, SearchResult result) {
                     if (abstractedDynVar.IsValidResult) {
                         if (abstractedDynVar.NameField != null) {
                             builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).PaddingLeft.Value = StyleHelpers.DEFAULT_MIN_SIZE;
+                            builder.PushStyle();
+                            builder.Style.MinHeight = StyleHelpers.DEFAULT_MIN_SIZE;
 #pragma warning disable CS8604 // Possible null reference argument.
                             SyncMemberEditorBuilder.Build(abstractedDynVar.NameField, "Name", TryGetSyncMemberFieldInfo(abstractedDynVar.NameField), builder);
 #pragma warning restore CS8604 // Possible null reference argument.
+                            builder.PopStyle();
                             builder.NestOut();
                         }
                     }
@@ -49,9 +55,12 @@ public class SearchResultItemView(IWorldElement item, SearchResult result) {
 
                 builder.NestOut();
             } else if (Item is ISyncMember syncMember) {
+                builder.PushStyle();
+                builder.Style.MinHeight = StyleHelpers.DEFAULT_MIN_SIZE;
 #pragma warning disable CS8604 // Possible null reference argument.
                 SyncMemberEditorBuilder.Build(syncMember, syncMember.Name, TryGetSyncMemberFieldInfo(syncMember), builder);
 #pragma warning restore CS8604 // Possible null reference argument.
+                builder.PopStyle();
             }
         }
         builder.NestOut();

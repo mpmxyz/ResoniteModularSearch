@@ -6,7 +6,7 @@ using FrooxEngine.UIX;
 using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.DataModel;
-public class SlotHierarchyView(Slot slot, SearchResult result) {
+public class SlotHierarchyView(Slot slot, SearchResult result, Action<IWorldElement> setFilterItem) {
 
     public Slot Slot { get; } = slot;
     private SearchResult Result { get; } = result;
@@ -23,6 +23,7 @@ public class SlotHierarchyView(Slot slot, SearchResult result) {
     }
 
     private event Action<bool>? OnOpenChanged;
+    private event Action<IWorldElement> SetFilterItem = setFilterItem;
 
     private readonly List<PropertySelection.Option<bool>> visibilityOptions =
     [
@@ -34,7 +35,7 @@ public class SlotHierarchyView(Slot slot, SearchResult result) {
         new(false, "●")
     ];
 
-    public void TryBuild(UIBuilder builder, SyncRef<IWorldElement> filterProperty) {
+    public void Setup(UIBuilder builder) {
         if (!Result.RecursiveResultCount.ContainsKey(Slot)) {
             return;
         }
@@ -74,9 +75,7 @@ public class SlotHierarchyView(Slot slot, SearchResult result) {
             colorDriver.ColorDrive.Target = nameText.Color;
             RadiantUI_Constants.SetupLabelDriverColors(colorDriver);
             nameButton.Slot.AttachComponent<ReferenceProxySource>().Reference.Target = Slot;
-            var referenceSet = nameButton.Slot.AttachComponent<ButtonReferenceSet<IWorldElement>>();
-            referenceSet.SetReference.Target = Slot;
-            referenceSet.TargetReference.Target = filterProperty;
+            ButtonAction.Create(nameButton, (user) => SetFilterItem(Slot));
 
             builder.NestOut();
         }
@@ -97,7 +96,7 @@ public class SlotHierarchyView(Slot slot, SearchResult result) {
                     childBuilder.NestInto(childContainer);
                     childBuilder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
                     foreach (var child in Slot.Children) {
-                        new SlotHierarchyView(child, Result).TryBuild(childBuilder, filterProperty);
+                        new SlotHierarchyView(child, Result, SetFilterItem).Setup(childBuilder);
                     }
                     childBuilder.NestOut();
                 }

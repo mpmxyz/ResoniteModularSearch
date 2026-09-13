@@ -7,6 +7,8 @@ using HarmonyLib;
 
 using ResoniteModLoader;
 
+using ResoniteModularSearch.Interaction;
+
 namespace ResoniteModularSearch;
 
 public class ResoniteModularSearch : ResoniteMod {
@@ -42,11 +44,9 @@ public class ResoniteModularSearch : ResoniteMod {
 					if (tool?.Grabber?.GrabbedObjects?.Count > 0) {
                         //TODO: adjust search root based on grabbed references
                     }
-                    Slot slot = b.World.RootSlot.AddSlot("Search Window");
-                    slot.PositionInFrontOfUser(float3.Backward, distance: 1.5f);
-                    slot.DestroyWhenUserLeaves(slot.LocalUser);
-                    slot.ScaleToUser(slot.LocalUser);
-                    SearchWindow.Create(slot);
+
+					var window = new SearchWindow(b.World);
+					window.Setup(b.World);
 				});
 			}
 		}

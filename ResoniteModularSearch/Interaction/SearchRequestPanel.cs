@@ -8,26 +8,36 @@ using ResoniteModularSearch.Filters;
 using ResoniteModularSearch.Search;
 using ResoniteModularSearch.Sources;
 
-namespace ResoniteModularSearch;
-internal class SearchRequestPanel(ISearchSource source, IFilter filter, Func<IWorldElement, bool> mask) {
-    public ISearchSource Source { get; set; } = source;
-    public IFilter Filter { get; set; } = filter;
+namespace ResoniteModularSearch.Interaction;
+public class SearchRequestPanel {
+    public ISearchSource Source { get; set; }
+    public IFilter Filter { get; set; }
 
     /// <summary>
     /// This mask is a workaround against search/replace finding and replacing itself.
     /// </summary>
-    public Func<IWorldElement, bool> Mask { get; set; } = mask;
+    public Func<IWorldElement, bool> Mask { get; set; }
 
     public SearchResult LastResult { get; private set; } = new();
     public event Action<SearchResult>? SearchCompleted;
-    public event Action<string> OnStatusChange = ResoniteModularSearch.Msg;
+    public event Action<string> OnStatusChange = ResoniteModLoader.ResoniteMod.Msg;
     private World? CurrentWorld { get; set; } = null;
 
-    public static SearchRequestPanel Create(Slot slot, UIBuilder builder, Func<IWorldElement, bool> mask) {
+    public SearchRequestPanel(ISearchSource source, IFilter filter, Func<IWorldElement, bool> mask) {
+        Source = source;
+        Filter = filter;
+        Mask = mask;
+        Filter.ApplyAction = RunAction;
+    }
+
+    public SearchRequestPanel(World world) : this(new FromIWorldElement(world.RootSlot), new FilterList(), (element) => true) {
+
+    }
+
+    public void Setup(UIBuilder builder) {
         builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING * 3).Slot.Name += " (Search Request Panel)";
 
-        ISearchSource dummySource = FromIWorldElement.Create(slot, builder);
-        IFilter rootFilter = new FilterList();
+        Source.Setup(builder);
 
         builder.PushStyle();
         builder.Style.FlexibleHeight = 1f;
@@ -39,19 +49,16 @@ internal class SearchRequestPanel(ISearchSource source, IFilter filter, Func<IWo
             builder.Style.SupressLayoutElement = true;
             builder.VerticalLayout(); //combined with ScrollArea()
             builder.PopStyle();
-            rootFilter.Setup(builder);
+            Filter.Setup(builder);
             builder.NestOut();
             //builder.NestOut(); Note: ScrollArea + VerticalLayout is only 1 level of nesting!
         }
-        SearchRequestPanel panel = new(dummySource, rootFilter, mask);
-        rootFilter.ApplyAction = panel.RunAction;
         InfoText? info = null;
-        ButtonAction.Create(builder, "Search", panel.RunSearch);
+        ButtonAction.Create(builder, "Search", RunSearch);
         info = InfoText.Create(builder, "");
-        panel.OnStatusChange += (msg) => info.Text = msg;
-        panel.CurrentWorld = slot.World;
+        OnStatusChange += (msg) => info.Text = msg;
+        CurrentWorld = builder.World;
         builder.NestOut();
-        return panel;
     }
 
     public void RunSearch() {
@@ -77,7 +84,7 @@ internal class SearchRequestPanel(ISearchSource source, IFilter filter, Func<IWo
                 }
             } catch (Exception e) {
                 if (ResoniteModularSearch.LogExceptions) {
-                    ResoniteModularSearch.Error($"Failed to apply action on: {item}\n{e}");
+                    ResoniteModLoader.ResoniteMod.Error($"Failed to apply action on: {item}\n{e}");
                 }
                 nFailed++;
             }

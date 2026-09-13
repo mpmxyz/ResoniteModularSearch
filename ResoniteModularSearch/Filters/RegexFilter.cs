@@ -6,16 +6,15 @@ using System.Text.RegularExpressions;
 
 using FrooxEngine;
 using FrooxEngine.UIX;
-using FrooxEngine.Undo;
 
 using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.FilterActions;
 using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
+
 [Filter("Regular Expression")]
 public class RegexFilter : IFilter {
-
     public class ReplaceAction : IFilterAction {
         private readonly RegexFilter filter;
 
@@ -27,11 +26,22 @@ public class RegexFilter : IFilter {
         public bool IsValid => filter.IsValid && filter.ReplaceWith != null;
 
         public FilterActionResult TryApplyTo(IWorldElement element, SearchContext context) {
-            return RegexHelper.ApplyReplace(ReadString(element),
-                                        filter.SearchFor,
-                                        filter.ReplaceWith,
-                                        (newValue) => WriteString(element, newValue));
-
+            Regex? searchFor = filter.SearchFor;
+            string? replaceWith = filter.ReplaceWith;
+            if (searchFor == null || replaceWith == null) {
+                return FilterActionResult.Failed;
+            }
+            PropertyAccess.PropertyStatistics result = PropertyAccess.UndoableEditAllMatchingValues<string>(
+                                                element: element,
+                                                //This does not match using the regex as non-matching values will be ignored anyway.
+                                                //(Replace causes no change -> ignored)
+                                                predicate: (value) => value != null,
+                                                transform: (value) => searchFor.Replace(value, replaceWith));
+            if (result.TotalCount == 0) {
+                return FilterActionResult.Ignored;
+            } else {
+                return FilterActionResult.Success;
+            }
         }
     }
 
@@ -53,30 +63,11 @@ public class RegexFilter : IFilter {
     }
 
     public bool Match(IWorldElement element, SearchContext context) {
-        Regex? pattern = SearchFor;
-        if (pattern == null) {
+        Regex? searchFor = SearchFor;
+        if (searchFor == null) {
             return false;
         }
-        string? value = ReadString(element);
-        if (value == null) {
-            return false;
-        }
-        return pattern.IsMatch(value);
-    }
-
-    private static string? ReadString(IWorldElement element) {
-        if (element is IValue<string> str) {
-            return str.Value;
-        }
-        return null;
-    }
-
-    private static void WriteString(IWorldElement element, string value) {
-        if (element is IValue<string> str) {
-            if (str is IField<string> strField) {
-                strField.CreateUndoPoint();
-            }
-            str.Value = value;
-        }
+        PropertyAccess.PropertyStatistics result = PropertyAccess.CountMatchingValues<string>(element, searchFor.IsMatch);
+        return result.TotalCount != 0;
     }
 }

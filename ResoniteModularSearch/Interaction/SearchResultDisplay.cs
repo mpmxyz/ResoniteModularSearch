@@ -6,21 +6,19 @@ using FrooxEngine.UIX;
 using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.Search;
 
-namespace ResoniteModularSearch;
+namespace ResoniteModularSearch.Interaction;
 public class SearchResultDisplay {
     private SearchResult displayedResult = new();
     public SearchResult DisplayedResult {
         get => displayedResult;
         set {
             displayedResult = value;
-            UpdateHierarchy();
-            if (SelectedElementRef.Target != null) {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-                SelectedElementRef.Target = null;
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+            RebuildHierarchy?.Invoke();
+            if (SelectedElement != null) {
+                SelectedElement = null;
             } else {
                 //no change in selection -> force update of display
-                UpdateSelection();
+                RebuildResults?.Invoke();
             }
         }
     }
@@ -30,36 +28,34 @@ public class SearchResultDisplay {
         get => maxDisplayedResults;
         set {
             maxDisplayedResults = value;
-            UpdateSelection();
+            RebuildResults?.Invoke();
         }
     }
 
+    private IWorldElement? selectedElement = null;
     public IWorldElement? SelectedElement {
-        get => SelectedElementRef.Target;
+        get => selectedElement;
         set {
-#pragma warning disable CS8601 // Possible null reference assignment.
-            SelectedElementRef.Target = value as Slot;
-#pragma warning restore CS8601 // Possible null reference assignment.
+            if (value != selectedElement) {
+                selectedElement = value;
+                RebuildResults?.Invoke();
+            }
         }
     }
 
-    private Slot HierarchyContentRoot { get; }
-    private Slot ComponentContentRoot { get; }
-    private SyncRef<IWorldElement> SelectedElementRef { get; }
-    private UIStyle Style { get; }
+    private event Action? RebuildHierarchy = null;
+    private event Action? RebuildResults = null;
 
-    public SearchResultDisplay(Slot hierarchyContentRoot, Slot componentContentRoot, SyncRef<IWorldElement> selectionRef, UIStyle style) {
-        HierarchyContentRoot = hierarchyContentRoot;
-        ComponentContentRoot = componentContentRoot;
-        SelectedElementRef = selectionRef;
-        Style = style;
-        SelectedElementRef.OnTargetChange += (newSlot) => {
-            UpdateSelection();
-        };
-    }
-
-    public static SearchResultDisplay Create(Slot slot, UIBuilder builder) {
+    public void Setup(UIBuilder builder) {
         var columns = builder.SplitHorizontally([1,1]);
+        var selectionRef = builder.Current.AttachComponent<ReferenceField<IWorldElement>>().Reference;
+#pragma warning disable CS8601 // Possible null reference assignment.
+        selectionRef.Target = SelectedElement;
+#pragma warning restore CS8601 // Possible null reference assignment.
+        selectionRef.OnTargetChange += (newSlot) => {
+            SelectedElement = newSlot;
+        };
+
         builder.NestInto(columns[0]);
         builder.CurrentRect.OffsetMin.Value = new(StyleHelpers.DEFAULT_SPACING, 0);
         builder.CurrentRect.OffsetMax.Value = new(-StyleHelpers.DEFAULT_SPACING, 0);
@@ -75,24 +71,27 @@ public class SearchResultDisplay {
         var componentContent = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
         builder.NestOut();
         builder.NestOut();
-        var selectionRef = slot.AttachComponent<ReferenceField<IWorldElement>>().Reference;
-        SearchResultDisplay display = new(hierarchyContent, componentContent, selectionRef, builder.Style.Clone());
-        return display;
+        //SearchResultDisplay display = new(hierarchyContent, componentContent, selectionRef, builder.Style.Clone());
+        var styleBase = builder.Style.Clone();
+        RebuildHierarchy += () => RebuildHierarchyContent(hierarchyContent, styleBase);
+        RebuildResults += () => RebuildResultContent(componentContent, styleBase);
+        RebuildHierarchy();
+        RebuildResults();
     }
 
-    private void UpdateHierarchy() {
+    private void RebuildHierarchyContent(Slot hierarchyContentRoot, UIStyle styleBase) {
         var result = DisplayedResult;
-        HierarchyContentRoot.RunSynchronously(() => {
-            HierarchyContentRoot.DestroyChildren();
-            UIBuilder builder = new(HierarchyContentRoot);
-            StyleHelpers.CopyStyleProperties(Style, builder.Style);
+        hierarchyContentRoot.RunSynchronously(() => {
+            hierarchyContentRoot.DestroyChildren();
+            UIBuilder builder = new(hierarchyContentRoot);
+            StyleHelpers.CopyStyleProperties(styleBase, builder.Style);
 
             foreach (var item in result.SearchRoots) {
                 if (item is Slot rootSlot) {
-                    SlotHierarchyView view = new(rootSlot, DisplayedResult) {
+                    SlotHierarchyView view = new(rootSlot, DisplayedResult, (newItem) => SelectedElement = newItem) {
                         Opened = true
                     };
-                    view.TryBuild(builder, SelectedElementRef);
+                    view.Setup(builder);
                 } else if (item is User user) {
                     //TODO: UserInspectorItem depends on UserInspector which creates an independent tool window
                     //-> custom display
@@ -101,12 +100,12 @@ public class SearchResultDisplay {
         });
     }
 
-    private void UpdateSelection() {
+    private void RebuildResultContent(Slot componentContentRoot, UIStyle styleBase) {
         var result = DisplayedResult;
-        ComponentContentRoot.RunSynchronously(() => {
-            ComponentContentRoot.DestroyChildren();
-            UIBuilder builder = new(ComponentContentRoot);
-            StyleHelpers.CopyStyleProperties(Style, builder.Style);
+        componentContentRoot.RunSynchronously(() => {
+            componentContentRoot.DestroyChildren();
+            UIBuilder builder = new(componentContentRoot);
+            StyleHelpers.CopyStyleProperties(styleBase, builder.Style);
             int nDisplayed = 0;
             int nSkipped = 0;
             foreach (var item in DisplayedResult.Results) {
@@ -120,7 +119,7 @@ public class SearchResultDisplay {
                             nDisplayed += new SearchResultItemView(item, result).TryBuild(builder);
                         } catch (Exception ex) {
                             if (ResoniteModularSearch.LogExceptions) {
-                                ResoniteModularSearch.Error(ex);
+                                ResoniteModLoader.ResoniteMod.Error(ex);
                             }
                             builder.PushStyle();
                             builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
