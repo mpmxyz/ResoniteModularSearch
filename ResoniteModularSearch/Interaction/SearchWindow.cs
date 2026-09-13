@@ -1,7 +1,6 @@
 ﻿using Elements.Core;
 
 using FrooxEngine;
-using FrooxEngine.UIX;
 
 namespace ResoniteModularSearch.Interaction;
 internal class SearchWindow {
@@ -19,14 +18,14 @@ internal class SearchWindow {
     }
 
     public void Setup(World world) {
-        Slot slot = world.RootSlot.AddSlot("Search Window");
-        slot.PositionInFrontOfUser(float3.Backward, distance: 1.5f);
-        slot.DestroyWhenUserLeaves(slot.LocalUser);
-        slot.ScaleToUser(slot.LocalUser);
-        Setup(slot);
+        Setup(world.LocalUserSpace.AddSlot("Search Window"));
     }
 
     public void Setup(Slot slot) {
+        slot.PositionInFrontOfUser(float3.Backward, distance: 1.5f);
+        slot.DestroyWhenUserLeaves(slot.LocalUser);
+        slot.ScaleToUser(slot.LocalUser);
+
         var builder = RadiantUI_Panel.SetupPanel(slot, "Search & Replace", new float2(2f, 1f));
         slot.Tag = "Developer";
 

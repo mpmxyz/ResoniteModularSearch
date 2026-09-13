@@ -11,7 +11,7 @@ using ResoniteModularSearch.Sources;
 namespace ResoniteModularSearch.Interaction;
 public class SearchRequestPanel {
     public ISearchSource Source { get; set; }
-    public IFilter Filter { get; set; }
+    public FilterList FilterList { get; set; }
 
     /// <summary>
     /// This mask is a workaround against search/replace finding and replacing itself.
@@ -21,16 +21,17 @@ public class SearchRequestPanel {
     public SearchResult LastResult { get; private set; } = new();
     public event Action<SearchResult>? SearchCompleted;
     public event Action<string> OnStatusChange = ResoniteModLoader.ResoniteMod.Msg;
-    private World? CurrentWorld { get; set; } = null;
+    private World World { get; }
 
-    public SearchRequestPanel(ISearchSource source, IFilter filter, Func<IWorldElement, bool> mask) {
+    public SearchRequestPanel(World world, ISearchSource source, FilterList filter, Func<IWorldElement, bool> mask) {
+        World = world;
         Source = source;
-        Filter = filter;
+        FilterList = filter;
         Mask = mask;
-        Filter.ApplyAction = RunAction;
+        FilterList.ApplyAction = RunAction;
     }
 
-    public SearchRequestPanel(World world) : this(new FromIWorldElement(world.RootSlot), new FilterList(), (element) => true) {
+    public SearchRequestPanel(World world) : this(world, new FromIWorldElement(world.RootSlot), new FilterList(), (element) => true) {
 
     }
 
@@ -49,7 +50,7 @@ public class SearchRequestPanel {
             builder.Style.SupressLayoutElement = true;
             builder.VerticalLayout(); //combined with ScrollArea()
             builder.PopStyle();
-            Filter.Setup(builder);
+            FilterList.Setup(builder);
             builder.NestOut();
             //builder.NestOut(); Note: ScrollArea + VerticalLayout is only 1 level of nesting!
         }
@@ -57,12 +58,11 @@ public class SearchRequestPanel {
         ButtonAction.Create(builder, "Search", RunSearch);
         info = InfoText.Create(builder, "");
         OnStatusChange += (msg) => info.Text = msg;
-        CurrentWorld = builder.World;
         builder.NestOut();
     }
 
     public void RunSearch() {
-        var results = SearchAlgorithm.RunSearch(Source, Filter, Mask);
+        var results = SearchAlgorithm.RunSearch(Source, FilterList, Mask);
         LastResult = results;
         SearchCompleted?.Invoke(results);
         OnStatusChange($"Found {results.Results.Count} match(es)");
@@ -71,7 +71,7 @@ public class SearchRequestPanel {
     public void RunAction(IFilterAction action) {
         int nSuccess = 0;
         int nFailed = 0;
-        CurrentWorld?.BeginUndoBatch(action.Name);
+        World?.BeginUndoBatch(action.Name);
         foreach (var item in LastResult.Results) {
             try {
                 switch (action.TryApplyTo(item, LastResult.Context)) {
@@ -89,7 +89,7 @@ public class SearchRequestPanel {
                 nFailed++;
             }
         }
-        CurrentWorld?.EndUndoBatch();
+        World?.EndUndoBatch();
         OnStatusChange($"{nSuccess} changes, {nFailed} failures");
     }
 }

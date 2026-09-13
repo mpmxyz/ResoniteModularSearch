@@ -26,7 +26,7 @@ public static class PropertyAccess {
         PropertyStatistics result = PropertyStatistics.None;
         if (element is IValue<T> value) {
             if (predicate(value.Value)) {
-                if (element is IField<T> field) {
+                if (element is IField<T>) {
                     result.UndoableCount++;
                 }
                 result.TotalCount++;
