@@ -25,6 +25,7 @@ public class ResoniteModularSearch : ResoniteMod {
 
 	public static bool DevToolHasRootSearch => devToolHasRootSearch.Value;
 	public static bool DevToolHasSmartSearch => devToolHasSmartSearch.Value;
+	public static bool AutoLaunchSmartSearch => autoLaunchSmartSearch.Value;
     public static bool LogExceptions => logExceptions.Value;
 
     [AutoRegisterConfigKey]
@@ -32,6 +33,9 @@ public class ResoniteModularSearch : ResoniteMod {
 
     [AutoRegisterConfigKey]
     private static readonly ModConfigurationKey<bool> devToolHasRootSearch = new("DevToolHasRootSearch", "Does the dev tool offer a search from root without grabbed item?", () => true);
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<bool> autoLaunchSmartSearch = new("AutoLaunchSmartSearch", "Does the smart search execute on spawn?", () => true);
 
     [AutoRegisterConfigKey]
     private static readonly ModConfigurationKey<bool> logExceptions = new("Debug.LogExceptions", "Log exceptions thrown by this mod.", () => true);
@@ -88,6 +92,9 @@ public class ResoniteModularSearch : ResoniteMod {
                         ])
                     });
                     window.Setup(b.World);
+                    if (AutoLaunchSmartSearch) {
+                        searchRequestPanel.RunSearch();
+                    }
                 });
             } else if (grabbedReference != null) {
                 menu.AddLocalActionItem($"Search for references to {grabbedReference.Name}", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
@@ -97,6 +104,9 @@ public class ResoniteModularSearch : ResoniteMod {
                         SearchFor = grabbedReference
                     });
                     window.Setup(b.World);
+                    if (AutoLaunchSmartSearch) {
+                        searchRequestPanel.RunSearch();
+                    }
                 });
             }
             if (grabbedValueSource != null) {
@@ -114,6 +124,9 @@ public class ResoniteModularSearch : ResoniteMod {
                     SearchFor = valueSource.Value
                 });
                 window.Setup(b.World);
+                if (AutoLaunchSmartSearch) {
+                    searchRequestPanel.RunSearch();
+                }
             });
         }
     }
