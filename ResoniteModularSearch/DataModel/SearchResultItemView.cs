@@ -3,6 +3,7 @@
 using FrooxEngine;
 using FrooxEngine.UIX;
 
+using ResoniteModularSearch.Filters.DynamicImpulses;
 using ResoniteModularSearch.Filters.DynamicVariables;
 using ResoniteModularSearch.Search;
 
@@ -38,7 +39,8 @@ public class SearchResultItemView(IWorldElement item, SearchResult result) {
                 nLines += worker.SyncMemberCount;
                 //TODO: outsource additional visuals - like dynvars - into its own auto-discovered builder-chain
                 //TODO: also allow reduced views of components
-                if (Result.Context.TryGetValue<AbstractedDynamicVariableElement>(Item, out var abstractedDynVar)) {
+                if (Result.Context.Values.TryGetValue<AbstractedDynamicVariableElement>(Item, out var abstractedDynVar)) {
+                    //TODO: only show elements that are not part of result
                     if (abstractedDynVar.IsValidResult) {
                         if (abstractedDynVar.NameField != null) {
                             builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).PaddingLeft.Value = StyleHelpers.DEFAULT_MIN_SIZE;
@@ -47,6 +49,23 @@ public class SearchResultItemView(IWorldElement item, SearchResult result) {
 #pragma warning disable CS8604 // Possible null reference argument.
                             SyncMemberEditorBuilder.Build(abstractedDynVar.NameField, "Name", TryGetSyncMemberFieldInfo(abstractedDynVar.NameField), builder);
 #pragma warning restore CS8604 // Possible null reference argument.
+                            builder.PopStyle();
+                            builder.NestOut();
+                        }
+                    }
+                }
+                if (Result.Context.Values.TryGetValue<AbstractedDynamicImpulseElement>(Item, out var abstractedDynImpulse)) {
+                    //TODO: only show elements that are not part of result
+                    if (abstractedDynImpulse.IsValidResult) {
+                        if (abstractedDynImpulse.TagFields.Count > 0) {
+                            builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).PaddingLeft.Value = StyleHelpers.DEFAULT_MIN_SIZE;
+                            builder.PushStyle();
+                            builder.Style.MinHeight = StyleHelpers.DEFAULT_MIN_SIZE;
+                            foreach (var field in abstractedDynImpulse.TagFields) {
+#pragma warning disable CS8604 // Possible null reference argument.
+                                SyncMemberEditorBuilder.Build(field, "Tag", TryGetSyncMemberFieldInfo(field), builder);
+#pragma warning restore CS8604 // Possible null reference argument.
+                            }
                             builder.PopStyle();
                             builder.NestOut();
                         }

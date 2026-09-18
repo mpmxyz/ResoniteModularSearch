@@ -8,8 +8,8 @@ using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Interaction;
 public class SearchResultDisplay {
-    private SearchResult displayedResult = new();
-    public SearchResult DisplayedResult {
+    private SearchResult? displayedResult = null;
+    public SearchResult? DisplayedResult {
         get => displayedResult;
         set {
             displayedResult = value;
@@ -83,12 +83,16 @@ public class SearchResultDisplay {
         var result = DisplayedResult;
         hierarchyContentRoot.RunSynchronously(() => {
             hierarchyContentRoot.DestroyChildren();
+            if (result == null) {
+                return;
+            }
+
             UIBuilder builder = new(hierarchyContentRoot);
             StyleHelpers.CopyStyleProperties(styleBase, builder.Style);
 
-            foreach (var item in result.SearchRoots) {
+            foreach (var item in result.Roots) {
                 if (item is Slot rootSlot) {
-                    SlotHierarchyView view = new(rootSlot, DisplayedResult, (newItem) => SelectedElement = newItem) {
+                    SlotHierarchyView view = new(rootSlot, result, (newItem) => SelectedElement = newItem) {
                         Opened = true
                     };
                     view.Setup(builder);
@@ -104,11 +108,15 @@ public class SearchResultDisplay {
         var result = DisplayedResult;
         componentContentRoot.RunSynchronously(() => {
             componentContentRoot.DestroyChildren();
+            if (result == null) {
+                return;
+            }
+
             UIBuilder builder = new(componentContentRoot);
             StyleHelpers.CopyStyleProperties(styleBase, builder.Style);
             int nDisplayed = 0;
             int nSkipped = 0;
-            foreach (var item in DisplayedResult.Results) {
+            foreach (var item in result.Results) {
                 //TODO: spread UI generation over multiple frames OR make it wait until scrolled enough
                 //TODO: option to not show anything with selectedItem==null (if UI generation is not limited)
                 //TODO: option to only show elements directly within Slot
@@ -135,6 +143,7 @@ public class SearchResultDisplay {
                 builder.PushStyle();
                 builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
                 builder.Text($"Remaining results without display: {nSkipped}").Color.Value = colorX.Red;
+                //TODO: convert to "load more" button
                 builder.PopStyle();
             }
         });

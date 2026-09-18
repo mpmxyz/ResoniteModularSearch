@@ -17,7 +17,7 @@ public class AddSpaceNameAction : IFilterAction {
     public bool IsValid => true;
 
     public FilterActionResult TryApplyTo(IWorldElement element, SearchContext context) {
-        if (!context.TryGetValue<AbstractedDynamicVariableElement>(element, out var abstractedDynVar)) {
+        if (!context.Values.TryGetValue<AbstractedDynamicVariableElement>(element, out var abstractedDynVar)) {
             return FilterActionResult.Ignored;
         }
         if (!abstractedDynVar.IsValidResult) {

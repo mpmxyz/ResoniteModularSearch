@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 
 using Elements.Core;
 
@@ -8,7 +9,7 @@ using FrooxEngine.UIX;
 using ResoniteModularSearch.Filters;
 
 namespace ResoniteModularSearch.DataModel;
-public class FilterSelectionInstantiator<T> {
+public class FilterSelector<T> {
     public event Action<T> OnFilterSelection;
     public Func<Type, bool>? TypeFilter;
 
@@ -24,7 +25,7 @@ public class FilterSelectionInstantiator<T> {
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) {
             try {
                 foreach (var type in assembly.GetTypes()) {
-                    if (type.IsAssignableTo(typeof(T))) {
+                    if (type.IsAssignableTo(typeof(T)) && !type.IsAbstract) {
                         foreach (var cons in type.GetConstructors()) {
                             if (cons.GetParameters().Length == 0) {
                                 var attribute = type.GetCustomAttribute<FilterAttribute>();
@@ -40,7 +41,7 @@ public class FilterSelectionInstantiator<T> {
         return results.OrderBy((it) => it.Name).ToList();
     }
 
-    public FilterSelectionInstantiator(Action<T> onTypeSelection, Func<Type, bool>? typeFilter = null) {
+    public FilterSelector(Action<T> onTypeSelection, Func<Type, bool>? typeFilter = null) {
         OnFilterSelection = onTypeSelection;
         TypeFilter = typeFilter;
     }
@@ -119,7 +120,15 @@ public class FilterSelectionInstantiator<T> {
                 int i = 0;
                 foreach (var parameter in baseType.GetGenericArguments()) {
                     int currentIndex = i;
-                    PropertyEditor.CreateTypeEditor(builder, parameter.Name, null, (type) => UpdateTypeArgument(currentIndex, type));
+                    Type[] constraints = parameter.GetGenericParameterConstraints();
+                    //TODO: extract into dedicated method and try to make type guesses smarter
+                    foreach (var constraint in constraints) {
+                        if (builder.World.Types.IsSupported(constraint)) {
+                            UpdateTypeArgument(currentIndex, constraint);
+                            break;
+                        }
+                    }
+                    PropertyEditor.CreateTypeEditor(builder, parameter.Name, typeArgs[currentIndex], (type) => UpdateTypeArgument(currentIndex, type));
                     i++;
                 }
             }

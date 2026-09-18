@@ -7,13 +7,12 @@ using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 
-[Filter("Element Type")]
+[Filter("Is Type")]
 public class ElementTypeFilter : IFilter {
     public Type SearchFor { get; set; } = typeof(object);
     public bool IncludeSubtypes { get; set; } = false;
-    public bool IsInverted { get; set; } = false;
 
-    public string Name => "Element Type";
+    public string Name => "Is Type";
 
     public bool IsValid => SearchFor != null;
 
@@ -21,21 +20,18 @@ public class ElementTypeFilter : IFilter {
 
     public void Setup(UIBuilder builder) {
         builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
-        builder.CreateTypeEditor("Element Type", SearchFor, (value) => SearchFor = value ?? SearchFor);
+        builder.CreateTypeEditor("Type", SearchFor, (value) => SearchFor = value ?? SearchFor);
         builder.CreateValueEditor("Include Subtypes", IncludeSubtypes, (value) => IncludeSubtypes = value);
-        builder.CreateValueEditor("Invert Match", IsInverted, (value) => IsInverted = value);
         builder.NestOut();
     }
 
     public bool Match(IWorldElement element, SearchContext context) {
         if (SearchFor != null) {
-            bool doesMatch;
             if (IncludeSubtypes) {
-                doesMatch = SearchFor.IsInstanceOfType(element);
+                return SearchFor.IsInstanceOfType(element);
             } else {
-                doesMatch = SearchFor.IsEquivalentTo(element.GetType());
+                return SearchFor.IsEquivalentTo(element.GetType());
             }
-            return doesMatch != IsInverted;
         }
         return false;
     }

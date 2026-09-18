@@ -1,37 +1,62 @@
-﻿using System.Collections.Frozen;
-using System.Diagnostics.CodeAnalysis;
+﻿using FrooxEngine;
+
+using ResoniteModularSearch.Filters;
+using ResoniteModularSearch.Sources;
 
 namespace ResoniteModularSearch.Search;
 public class SearchContext {
-    private readonly IDictionary<object, object> content;
+    private IFilter Filter { get; }
+    private Func<IWorldElement, bool> Mask { get; }
+    public SearchValues Values { get; private set; } = new();
 
-    public SearchContext(IDictionary<object, object> content) {
-        this.content = content;
-    }
-    public SearchContext() : this(new Dictionary<object, object>()) {
+    private readonly Dictionary<IFilter, SearchContext> subQueryContexts = [];
+    private readonly Dictionary<IWorldElement, bool> matchCache = []; //TODO: use cache only for subqueries with cacheable filters
 
-    }
-
-    public SearchContext ToFrozenContext() {
-        return new(content.ToFrozenDictionary());
-    }
-
-    private record struct DictionaryKey<V>(object Key) {
-
+    public SearchContext(IFilter filter, Func<IWorldElement, bool> mask) {
+        Filter = filter;
+        Mask = mask;
     }
 
-    public void SetValue<V>(object key, V value) where V : notnull {
-        content.Add(new DictionaryKey<V>(key), value);
-    }
-
-    public bool TryGetValue<V>(object key, [MaybeNullWhen(false)] out V value) where V : notnull {
-        if (content.TryGetValue(new DictionaryKey<V>(key), out var rawValue)) {
-            if (rawValue is V castValue) {
-                value = castValue;
-                return true;
+    public SearchResult Search(ISearchSource source) {
+        SearchResult result = new(this);
+        try {
+            foreach (var root in source.RootElements) {
+                result.AddRoot(root);
+            }
+            foreach (var candidate in source.GetAllCandidates(Mask)) {
+                if (Match(candidate)) {
+                    result.AddResult(candidate);
+                }
+            }
+        } catch (Exception e) {
+            if (ResoniteModularSearch.LogExceptions) {
+                ResoniteModularSearch.Error($"Exception while running search:\n{e}");
             }
         }
-        value = default;
-        return false;
+        return result;
+    }
+
+    public bool Match(IWorldElement candidate) {
+        if (!matchCache.TryGetValue(candidate, out var result))
+        {
+            result = false;
+            try {
+                result = Filter.Match(candidate, this);
+            } catch (Exception e) {
+                if (ResoniteModularSearch.LogExceptions) {
+                    ResoniteModularSearch.Error($"Failed to run Match on: {candidate}\n{e}");
+                }
+            }
+            matchCache[candidate] = result;
+        }
+        return result;
+    }
+
+    public SearchContext GetSubQueryContext(IFilter filter) {
+        if (!subQueryContexts.TryGetValue(filter, out var subQueryContext)) {
+            subQueryContext = new(filter, Mask);
+            subQueryContexts[filter] = subQueryContext;
+        }
+        return subQueryContext;
     }
 }

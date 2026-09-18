@@ -6,6 +6,7 @@ public static class PropertySelection {
     public readonly struct Option<T>(T value, string description) {
         public T Value { get; } = value;
         public string Description { get; } = description;
+        //TODO: optional color override
     }
 
     public static void CreateSelection<T>(this UIBuilder builder, string? name, T initial, Action<T> onChange, IEnumerable<Option<T>> options) {

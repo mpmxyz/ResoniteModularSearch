@@ -18,7 +18,7 @@ public class SearchRequestPanel {
     /// </summary>
     public Func<IWorldElement, bool> Mask { get; set; }
 
-    public SearchResult LastResult { get; private set; } = new();
+    public SearchResult LastResult { get; private set; }
     public event Action<SearchResult>? SearchCompleted;
     public event Action<string> OnStatusChange = ResoniteModLoader.ResoniteMod.Msg;
     private World World { get; }
@@ -29,9 +29,10 @@ public class SearchRequestPanel {
         FilterList = filter;
         Mask = mask;
         FilterList.ApplyAction = RunAction;
+        LastResult = new(new SearchContext(FilterList, Mask));
     }
 
-    public SearchRequestPanel(World world) : this(world, new FromIWorldElement(world.RootSlot), new FilterList(), (element) => true) {
+    public SearchRequestPanel(World world) : this(world, new FromParent<IWorldElement>(world.RootSlot), new FilterList(), (element) => true) {
 
     }
 
@@ -62,34 +63,16 @@ public class SearchRequestPanel {
     }
 
     public void RunSearch() {
-        var results = SearchAlgorithm.RunSearch(Source, FilterList, Mask);
+        var results = new SearchContext(FilterList, Mask).Search(Source);
         LastResult = results;
         SearchCompleted?.Invoke(results);
         OnStatusChange($"Found {results.Results.Count} match(es)");
     }
 
     public void RunAction(IFilterAction action) {
-        int nSuccess = 0;
-        int nFailed = 0;
         World?.BeginUndoBatch(action.Name);
-        foreach (var item in LastResult.Results) {
-            try {
-                switch (action.TryApplyTo(item, LastResult.Context)) {
-                    case FilterActionResult.Success:
-                        nSuccess++;
-                        break;
-                    case FilterActionResult.Failed:
-                        nFailed++;
-                        break;
-                }
-            } catch (Exception e) {
-                if (ResoniteModularSearch.LogExceptions) {
-                    ResoniteModLoader.ResoniteMod.Error($"Failed to apply action on: {item}\n{e}");
-                }
-                nFailed++;
-            }
-        }
+        var result = LastResult.RunAction(action);
         World?.EndUndoBatch();
-        OnStatusChange($"{nSuccess} changes, {nFailed} failures");
+        OnStatusChange($"{result.SuccessCount} changes, {result.FailureCount} failures");
     }
 }

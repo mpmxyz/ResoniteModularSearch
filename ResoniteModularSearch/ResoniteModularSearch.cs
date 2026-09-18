@@ -75,14 +75,14 @@ public class ResoniteModularSearch : ResoniteMod {
 				menu.AddLocalActionItem($"Search from {slot.Name}", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
 					var window = new SearchWindow(b.World);
 					var searchRequestPanel = window.SearchRequestPanel;
-					searchRequestPanel.Source = new FromIWorldElement(slot);
+					searchRequestPanel.Source = new FromParent<IWorldElement>(slot);
 					window.Setup(b.World);
 				});
 			} else if (grabbedReference is DynamicVariableSpace space) {
                 menu.AddLocalActionItem($"Search variables in {space.SpaceName.Value}", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
                     var window = new SearchWindow(b.World);
                     var searchRequestPanel = window.SearchRequestPanel;
-                    searchRequestPanel.Source = new FromIWorldElement(space.Slot);
+                    searchRequestPanel.Source = new FromParent<IWorldElement>(space.Slot);
                     searchRequestPanel.FilterList.AddFilter(new DynamicVariableFilter {
                         WithinSpace = space,
                         QueriedKinds = new HashSet<DynamicVariableElementKind>([

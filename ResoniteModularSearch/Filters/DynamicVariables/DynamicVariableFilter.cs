@@ -78,9 +78,9 @@ public partial class DynamicVariableFilter : IFilter {
     }
 
     public bool Match(IWorldElement element, SearchContext context) {
-        if (!context.TryGetValue<AbstractedDynamicVariableElement>(element, out var abstractedDynVar)) {
+        if (!context.Values.TryGetValue<AbstractedDynamicVariableElement>(element, out var abstractedDynVar)) {
             abstractedDynVar = DynamicVariableHelpers.TryGetAbstractedDynamicVariableElement(element);
-            context.SetValue(element, abstractedDynVar);
+            context.Values.SetValue(element, abstractedDynVar);
         }
         if (!abstractedDynVar.IsValidResult) {
             return false;

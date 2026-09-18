@@ -106,6 +106,7 @@ public class FilterList : IFilter {
                         builder.PopStyle();
                         builder.PushStyle();
                         builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+                        //TODO: add colors and maybe shape-based hints to highlight responses
                         builder.CreateSelection("On Match", config.OnMatch, (value) => config.OnMatch = value, optionalResponses);
                         builder.CreateSelection("Else", config.OnMismatch, (value) => config.OnMismatch = value, optionalResponses);
                         builder.PopStyle();
@@ -156,7 +157,7 @@ public class FilterList : IFilter {
             builder.Style.FlexibleWidth = 1;
             World world = builder.World;
             ButtonAction.Create(builder, "Add Filter...", (user) => {
-                new FilterSelectionInstantiator<IFilter>(AddFilter).Setup(world, "Select Filter Type", user);
+                new FilterSelector<IFilter>(AddFilter).Setup(world, "Select Filter Type", user);
             });
             builder.PopStyle();
 

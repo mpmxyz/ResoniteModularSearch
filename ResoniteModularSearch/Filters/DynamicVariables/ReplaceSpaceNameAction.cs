@@ -18,7 +18,7 @@ public class ReplaceSpaceNameAction : IFilterAction {
     public bool IsValid => filter.SpaceNamePattern != null && filter.ReplaceSpaceNameWith != null;
 
     public FilterActionResult TryApplyTo(IWorldElement element, SearchContext context) {
-        if (!context.TryGetValue<AbstractedDynamicVariableElement>(element, out var abstractedDynVar)) {
+        if (!context.Values.TryGetValue<AbstractedDynamicVariableElement>(element, out var abstractedDynVar)) {
             return FilterActionResult.Ignored;
         }
         if (!abstractedDynVar.IsValidResult) {
