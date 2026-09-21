@@ -50,6 +50,9 @@ public abstract class SubQueryFilterBase : IFilter {
         }
     }
 
+    public SubQueryFilterBase() {
+        filterList.ApplyAction = ApplyWrappedAction;
+    }
     
     public bool IsValid => FilterList.IsValid;
 
