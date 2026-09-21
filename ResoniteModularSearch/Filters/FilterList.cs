@@ -19,6 +19,7 @@ public class FilterList : IFilter {
         public bool? OnMismatch { get; set; } = onMismatch;
     }
 
+    //TODO: ensure no there are no cycles, ensure all changes to list are observed
     public List<FilterConfig> FilterConfigs { get; set; } = [];
     public bool DefaultResult = true;
 
@@ -65,6 +66,7 @@ public class FilterList : IFilter {
                     var slot = builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
                     slot.Destroyed += (s) => RemoveFilter(config);
                     slot.Name += " (Filter Config)";
+                    slot.OrderOffset = knownConfigs.Count;
                     knownConfigs[config] = slot;
 
                     builder.PushStyle();
@@ -90,7 +92,7 @@ public class FilterList : IFilter {
                     builder.PushStyle();
                     builder.Style.FlexibleWidth = 1;
                     {
-                        builder.VerticalLayout();
+                        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
                         builder.PopStyle();
                         builder.PushStyle();
                         builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
@@ -150,8 +152,12 @@ public class FilterList : IFilter {
             OnFilterMoved += UpdateFilterOrder;
             builder.NestOut();
         }
+        builder.Spacer(0f);
         {
+            builder.PushStyle();
+            builder.Style.MinWidth = StyleHelpers.MIN_FILTER_LIST_WIDTH;
             builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING);
+            builder.PopStyle();
 
             builder.PushStyle();
             builder.Style.FlexibleWidth = 1;

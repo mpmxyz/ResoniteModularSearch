@@ -43,9 +43,7 @@ public class DestroyableFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { private get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
         ButtonAction.Create(builder, "Destroy all search results", () => ApplyAction?.Invoke(new DestroyAction(this)), dangerous: true);
-        builder.NestOut();
     }
 
     public bool Match(IWorldElement element, SearchContext context) {

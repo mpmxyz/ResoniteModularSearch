@@ -23,9 +23,7 @@ public class WithinElementFilter<TElement> : SubQueryFilterBase where TElement :
     }
 
     public override void Setup(UIBuilder builder) {
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING); //TODO: move vertical layout out of filter UI generation -> use super setup
         builder.CreateValueEditor("Max Depth (levels of slots)", MaxDepth, (value) => MaxDepth = value);
-        FilterList.Setup(builder);
-        builder.NestOut();
+        base.Setup(builder);
     }
 }

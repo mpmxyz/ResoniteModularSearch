@@ -26,7 +26,7 @@ internal class SearchWindow {
         slot.DestroyWhenUserLeaves(slot.LocalUser);
         slot.ScaleToUser(slot.LocalUser);
 
-        var builder = RadiantUI_Panel.SetupPanel(slot, "Search & Replace", new float2(2f, 1f));
+        var builder = RadiantUI_Panel.SetupPanel(slot, "Search & Replace", new float2(2.5f, 1f));
         slot.Tag = "Developer";
 
 
@@ -35,15 +35,31 @@ internal class SearchWindow {
         builder.Canvas.UnitScale.Value = 1000;
         builder.Canvas.AcceptPhysicalTouch.Value = false;
 
-        var columns = builder.SplitHorizontally([2,2]);
-        builder.NestInto(columns[0]);
-        SearchRequestPanel.Setup(builder);
-        var previousMask = SearchRequestPanel.Mask;
-        SearchRequestPanel.Mask = (element) => element != slot && (previousMask == null || previousMask(element));
-
-        builder.NestOut();
-        builder.NestInto(columns[1]);
-        SearchResultDisplay.Setup(builder);
-        builder.NestOut();
+        builder.PushStyle();
+        builder.Style.ForceExpandHeight = true;
+        {
+            builder.HorizontalLayout();
+            builder.PopStyle();
+            builder.PushStyle();
+            builder.Style.Width = 1500;
+            {
+                builder.VerticalLayout();
+                builder.PopStyle();
+                SearchRequestPanel.Setup(builder);
+                var previousMask = SearchRequestPanel.Mask;
+                SearchRequestPanel.Mask = (element) => element != slot && (previousMask == null || previousMask(element));
+                builder.NestOut();
+            }
+            builder.PushStyle();
+            builder.Style.FlexibleWidth = 1;
+            builder.Style.ForceExpandHeight = true;
+            {
+                builder.HorizontalLayout();
+                builder.PopStyle();
+                SearchResultDisplay.Setup(builder);
+                builder.NestOut();
+            }
+            builder.NestOut();
+        }
     }
 }

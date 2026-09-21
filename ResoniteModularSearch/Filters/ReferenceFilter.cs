@@ -45,12 +45,10 @@ public class ReferenceFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { private get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
         builder.CreateReferenceEditor("Search for", SearchFor, (value) => SearchFor = value);
         builder.CreateValueEditor("Invert Match", IsInverted, (value) => IsInverted = value);
         builder.CreateReferenceEditor("Replace with", ReplaceWith, (value) => ReplaceWith = value);
         ButtonAction.Create(builder, "Replace", () => ApplyAction?.Invoke(new ReplaceAction(this)));
-        builder.NestOut();
     }
 
     public bool Match(IWorldElement element, SearchContext context) {

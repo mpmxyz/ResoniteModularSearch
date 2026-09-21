@@ -53,7 +53,6 @@ public partial class DynamicImpulseFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { get; set; }
 
     public void Setup(UIBuilder builder) { //BUG: check why not all variables of Bow v12 from DoAV are found
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
         builder.CreateTypeEditor("Of type", OfType, (value) => OfType = value);
         builder.CreateRegexEditor("Tag pattern", TagPattern, (value) => TagPattern = value);
         
@@ -72,7 +71,6 @@ public partial class DynamicImpulseFilter : IFilter {
         builder.CreateSelection(null, IsEnabled, (value) => IsEnabled = value, IsEnabledOptions);
         builder.CreateValueEditor("Replace tag with", ReplaceTagWith, (value) => ReplaceTagWith = value);
         ButtonAction.Create(builder, "Replace tag", () => ApplyAction?.Invoke(new ReplaceTagAction(this)));
-        builder.NestOut();
     }
 
     public bool Match(IWorldElement element, SearchContext context) {

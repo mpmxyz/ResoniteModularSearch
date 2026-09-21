@@ -44,8 +44,14 @@ public class SearchRequestPanel {
         builder.PushStyle();
         builder.Style.FlexibleHeight = 1f;
         {
-            builder.ScrollArea();
-            builder.FitContent(SizeFit.Disabled, SizeFit.MinSize);
+            var scrollArea = builder.ScrollArea();
+            /*{
+                builder.NestInto(scrollArea.Slot.Parent);
+                scrollArea.Slot.Parent.AttachComponent<OverlappingLayout>();
+                builder.FitContent(SizeFit.MinSize, SizeFit.Disabled);
+                builder.NestOut();
+            }*/
+            builder.FitContent(SizeFit.MinSize, SizeFit.MinSize);
             builder.PopStyle();
             builder.PushStyle();
             builder.Style.SupressLayoutElement = true;

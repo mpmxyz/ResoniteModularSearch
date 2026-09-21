@@ -21,10 +21,4 @@ public class HasSyncMemberFilter<TElement> : SubQueryFilterBase where TElement :
         };
         return source;
     }
-
-    public override void Setup(UIBuilder builder) {
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING); //TODO: move vertical layout out of filter UI generation -> use super setup
-        FilterList.Setup(builder);
-        builder.NestOut();
-    }
 }

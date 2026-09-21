@@ -8,6 +8,7 @@ public static class StyleHelpers {
     public const float MATCH_RESPONSE_WIDTH = 400f;
     public const float MINIMUM_SLOT_NAME_WIDTH = 200f;
     public const float DEFAULT_SPACING = 4f;
+    public const float MIN_FILTER_LIST_WIDTH = 800f;
 
     public static void CopyStyleProperties(UIStyle source, UIStyle target) {
         CopyProperties(source, target);

@@ -2,7 +2,6 @@
 using FrooxEngine;
 using FrooxEngine.UIX;
 
-using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.FilterActions;
 using ResoniteModularSearch.Search;
 using ResoniteModularSearch.Sources;
@@ -49,11 +48,11 @@ public abstract class SubQueryFilterBase : IFilter {
             filterList.ApplyAction = ApplyWrappedAction;
         }
     }
-
+    
     public SubQueryFilterBase() {
         filterList.ApplyAction = ApplyWrappedAction;
     }
-    
+
     public bool IsValid => FilterList.IsValid;
 
     public Action<IFilterAction>? ApplyAction { private get; set; }
@@ -61,9 +60,7 @@ public abstract class SubQueryFilterBase : IFilter {
     public abstract ISearchSource GetSubQueryElements(IWorldElement element);
 
     public virtual void Setup(UIBuilder builder) {
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING); //TODO: move vertical layout out of filter UI generation
         FilterList.Setup(builder);
-        builder.NestOut();
     }
 
     public bool Match(IWorldElement element, SearchContext context) {

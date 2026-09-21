@@ -48,7 +48,6 @@ public partial class DynamicVariableFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
         builder.CreateTypeEditor("Of type", OfType, (value) => OfType = value);
         builder.CreateSelection("Search for", IsLinked, (value) => IsLinked = value, LinkOptions);
         builder.CreateReferenceEditor("Within space", WithinSpace, (value) => WithinSpace = value);
@@ -74,7 +73,6 @@ public partial class DynamicVariableFilter : IFilter {
             ButtonAction.Create(builder, "Remove space name", () => ApplyAction?.Invoke(new RemoveSpaceNameAction(this)));
             builder.NestOut();
         }
-        builder.NestOut();
     }
 
     public bool Match(IWorldElement element, SearchContext context) {

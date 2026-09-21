@@ -50,11 +50,9 @@ public class ValueFilter<T> : IFilter {
     public Action<IFilterAction>? ApplyAction { private get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
         builder.CreateValueEditor("Search for", SearchFor, (value) => SearchFor = value);
         builder.CreateValueEditor("Replace with", ReplaceWith, (value) => ReplaceWith = value);
         ButtonAction.Create(builder, "Replace", () => ApplyAction?.Invoke(new ReplaceAction(this)));
-        builder.NestOut();
     }
 
     public bool Match(IWorldElement element, SearchContext context) {

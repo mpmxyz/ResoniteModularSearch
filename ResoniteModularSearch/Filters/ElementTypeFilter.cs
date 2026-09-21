@@ -19,10 +19,8 @@ public class ElementTypeFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
         builder.CreateTypeEditor("Type", SearchFor, (value) => SearchFor = value ?? SearchFor);
         builder.CreateValueEditor("Include Subtypes", IncludeSubtypes, (value) => IncludeSubtypes = value);
-        builder.NestOut();
     }
 
     public bool Match(IWorldElement element, SearchContext context) {

@@ -31,11 +31,9 @@ public class HierarchyFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { private get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
         builder.CreateReferenceEditor("Child of", IsChildOf, (value) => IsChildOf = value);
         builder.CreateReferenceEditor("Parent of", IsParentOf, (value) => IsParentOf = value);
         builder.CreateValueEditor("Include self", IncludeSelf, (value) => IncludeSelf = value);
-        builder.NestOut();
     }
 
     public bool Match(IWorldElement element, SearchContext context) {
