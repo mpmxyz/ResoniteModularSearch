@@ -1,6 +1,7 @@
 ﻿using Elements.Core;
 
 using FrooxEngine;
+using FrooxEngine.Undo;
 
 namespace ResoniteModularSearch.Interaction;
 internal class SearchWindow {
@@ -23,16 +24,29 @@ internal class SearchWindow {
 
     public void Setup(Slot slot) {
         slot.PositionInFrontOfUser(float3.Backward, distance: 1.5f);
-        slot.DestroyWhenUserLeaves(slot.LocalUser);
         slot.ScaleToUser(slot.LocalUser);
 
-        var builder = RadiantUI_Panel.SetupPanel(slot, "Search & Replace", new float2(2500f, 1000f));
+        //make sure only users with builder role can interact with it
+        //Note: Creation of window is implicitly permitted by builder role since it requires interaction with a DevTool.
         slot.Tag = "Developer";
+
+        //prevent littering sessions
+        slot.PersistentSelf = false;
+        slot.DestroyWhenUserLeaves(slot.LocalUser);
+
+        //make sure noone can create broken search windows
+        slot.AttachComponent<DuplicateBlock>();
+        slot.AttachComponent<GrabbableSaveBlock>();
+        slot.AttachComponent<NoDestroyUndo>();
+
+        var builder = RadiantUI_Panel.SetupPanel(slot, "Search & Replace", new float2(2500f, 1000f));
         slot.LocalScale *= 0.001f;
+
+        //prevent accidental interactions when moving through window
+        builder.Canvas.AcceptPhysicalTouch.Value = false;
 
         builder.Style.ForceExpandHeight = false;
         builder.Style.ChildAlignment = Alignment.TopLeft;
-        builder.Canvas.AcceptPhysicalTouch.Value = false;
 
         builder.PushStyle();
         builder.Style.ForceExpandHeight = true;
