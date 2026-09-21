@@ -28,7 +28,6 @@ public class ToParent<T>(IWorldElement searchRoot) : ISearchSource where T : IWo
     /// <param name="mask">ignored because it is expected that the search root is not within a "forbidden" hierarchy</param>
     /// <returns></returns>
     public IEnumerable<IWorldElement> GetAllCandidates(Func<IWorldElement, bool> mask) {
-        List<IWorldElement> resultList = [];
         var element = SearchRoot;
         int depth = 0;
         if (!IncludeSearchRoot) {
@@ -42,14 +41,13 @@ public class ToParent<T>(IWorldElement searchRoot) : ISearchSource where T : IWo
                 break;
             }
             if (element is T) {
-                resultList.Add(element);
+                yield return element;
             }
             if (element is Slot) {
                 depth++;
             }
             element = element.Parent;
         }
-        return resultList;
     }
 
     public void Setup(UIBuilder builder) {
