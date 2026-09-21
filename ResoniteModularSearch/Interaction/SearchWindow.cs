@@ -26,13 +26,12 @@ internal class SearchWindow {
         slot.DestroyWhenUserLeaves(slot.LocalUser);
         slot.ScaleToUser(slot.LocalUser);
 
-        var builder = RadiantUI_Panel.SetupPanel(slot, "Search & Replace", new float2(2.5f, 1f));
+        var builder = RadiantUI_Panel.SetupPanel(slot, "Search & Replace", new float2(2500f, 1000f));
         slot.Tag = "Developer";
-
+        slot.LocalScale *= 0.001f;
 
         builder.Style.ForceExpandHeight = false;
         builder.Style.ChildAlignment = Alignment.TopLeft;
-        builder.Canvas.UnitScale.Value = 1000;
         builder.Canvas.AcceptPhysicalTouch.Value = false;
 
         builder.PushStyle();
