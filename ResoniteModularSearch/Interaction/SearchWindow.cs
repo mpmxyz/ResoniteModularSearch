@@ -3,6 +3,8 @@
 using FrooxEngine;
 using FrooxEngine.Undo;
 
+using ResoniteModularSearch.DataModel;
+
 namespace ResoniteModularSearch.Interaction;
 internal class SearchWindow {
     public SearchRequestPanel SearchRequestPanel { get; }
@@ -47,16 +49,16 @@ internal class SearchWindow {
 
         builder.Style.ForceExpandHeight = false;
         builder.Style.ChildAlignment = Alignment.TopLeft;
-
+        
         builder.PushStyle();
         builder.Style.ForceExpandHeight = true;
         {
-            builder.HorizontalLayout();
+            builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING);
             builder.PopStyle();
             builder.PushStyle();
             builder.Style.Width = 1500;
             {
-                builder.VerticalLayout();
+                builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
                 builder.PopStyle();
                 SearchRequestPanel.Setup(builder);
                 var previousMask = SearchRequestPanel.Mask;
@@ -67,7 +69,7 @@ internal class SearchWindow {
             builder.Style.FlexibleWidth = 1;
             builder.Style.ForceExpandHeight = true;
             {
-                builder.HorizontalLayout();
+                builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING);
                 builder.PopStyle();
                 SearchResultDisplay.Setup(builder);
                 builder.NestOut();

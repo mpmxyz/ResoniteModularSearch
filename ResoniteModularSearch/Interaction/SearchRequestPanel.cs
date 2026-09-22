@@ -55,7 +55,7 @@ public class SearchRequestPanel {
             builder.PopStyle();
             builder.PushStyle();
             builder.Style.SupressLayoutElement = true;
-            builder.VerticalLayout(); //combined with ScrollArea()
+            builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING); //combined with ScrollArea()
             builder.PopStyle();
             FilterList.Setup(builder);
             builder.NestOut();

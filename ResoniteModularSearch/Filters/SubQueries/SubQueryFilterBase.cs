@@ -41,16 +41,14 @@ public abstract class SubQueryFilterBase : IFilter {
     public FilterList FilterList {
         get => filterList;
         set {
-            if (filterList != null) {
-                filterList.ApplyAction = null;
-            }
+            filterList.ApplyAction = null;
             filterList = value;
             filterList.ApplyAction = ApplyWrappedAction;
         }
     }
     
     public SubQueryFilterBase() {
-        filterList.ApplyAction = ApplyWrappedAction;
+        FilterList.ApplyAction = ApplyWrappedAction;
     }
 
     public bool IsValid => FilterList.IsValid;

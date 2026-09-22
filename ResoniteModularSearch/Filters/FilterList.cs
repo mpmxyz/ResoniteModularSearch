@@ -1,4 +1,6 @@
-﻿using FrooxEngine;
+﻿using Elements.Core;
+
+using FrooxEngine;
 using FrooxEngine.UIX;
 
 using ResoniteModularSearch.DataModel;
@@ -41,141 +43,197 @@ public class FilterList : IFilter {
             }
         }
     }
-
+    private static readonly colorX COLOR_CONTINUE = colorX.DarkGray;
+    private static readonly colorX COLOR_DISCARD = colorX.Red.SetValue(ColorHSV.GetValue(colorX.Gray));
+    private static readonly colorX COLOR_MATCH = colorX.Green.SetValue(ColorHSV.GetValue(colorX.Gray));
     private static readonly List<PropertySelection.Option<bool>> requiredResponses = [
-        new(true, "Accept"),
-        new(false, "Discard")
+        new(true, "✔ Accept", COLOR_MATCH),
+        new(false, "✘ Discard", COLOR_DISCARD)
     ];
     private static readonly List<PropertySelection.Option<bool?>> optionalResponses = [
-        new(true, "Accept"),
-        new(null, "Continue"),
-        new(false, "Discard")
+        new(true, "✔ Accept", COLOR_MATCH),
+        new(null, "🢃 Continue", COLOR_CONTINUE),
+        new(false, "✘ Discard", COLOR_DISCARD)
     ];
     public void Setup(UIBuilder builder) {
-        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING * 2).Slot.Name+=" (Filter List)";
-        {
-            Slot configListSlot = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING * 2).Slot;
-            var style = builder.Style.Clone();
-            Dictionary<FilterConfig, Slot> knownConfigs = [];
-            void BuildFilterConfig(FilterConfig config) {
-                UIBuilder builder = new(configListSlot);
-                StyleHelpers.CopyStyleProperties(style, builder.Style);
-
-                builder.NestInto(configListSlot);
-                {
-                    var slot = builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
-                    slot.Destroyed += (s) => RemoveFilter(config);
-                    slot.Name += " (Filter Config)";
-                    slot.OrderOffset = knownConfigs.Count;
-                    knownConfigs[config] = slot;
-
-                    builder.PushStyle();
-                    builder.Style.Width = StyleHelpers.DEFAULT_MIN_SIZE;
-                    {
-                        builder.VerticalLayout().Slot.Name += " (Position Arrows)";
-                        builder.PopStyle();
-                        builder.PushStyle();
-                        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
-                        ButtonAction.Create(builder, "↑", () => MoveFilterUp(config));
-                        builder.PopStyle();
-                        builder.PushStyle();
-                        builder.Style.FlexibleHeight = 1;
-                        builder.Next("Spacer");
-                        builder.PopStyle();
-                        builder.PushStyle();
-                        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
-                        ButtonAction.Create(builder, "↓", () => MoveFilterDown(config));
-                        builder.PopStyle();
-                        builder.NestOut();
-                    }
-
-                    builder.PushStyle();
-                    builder.Style.FlexibleWidth = 1;
-                    {
-                        builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
-                        builder.PopStyle();
-                        builder.PushStyle();
-                        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
-                        builder.Text($"<u>{config.Filter.Name}</u>");
-                        builder.PopStyle();
-                        config.Filter.Setup(builder);
-                        builder.NestOut();
-                    }
-                    builder.PushStyle();
-                    builder.Style.Width = StyleHelpers.MATCH_RESPONSE_WIDTH;
-                    {
-                        builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING).Slot.Name += " (Match Responses)";
-                        builder.PopStyle();
-                        builder.PushStyle();
-                        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
-                        //TODO: add colors and maybe shape-based hints to highlight responses
-                        builder.CreateSelection("On Match", config.OnMatch, (value) => config.OnMatch = value, optionalResponses);
-                        builder.CreateSelection("Else", config.OnMismatch, (value) => config.OnMismatch = value, optionalResponses);
-                        builder.PopStyle();
-                        builder.NestOut();
-                    }
-                    builder.PushStyle();
-                    builder.Style.Width = StyleHelpers.DEFAULT_MIN_SIZE;
-                    {
-                        builder.VerticalLayout().Slot.Name += " (Remove)";
-                        builder.PopStyle();
-                        builder.PushStyle();
-                        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
-                        ButtonAction.Create(builder, "❌", () => RemoveFilter(config));
-                        builder.PopStyle();
-                        builder.NestOut();
-                    }
-                    builder.NestOut();
-                }
-
-                builder.NestOut();
-            }
-            void RemoveFilterUI(FilterConfig config) {
-                if (knownConfigs.TryGetValue(config, out var slot)) {
-                    knownConfigs.Remove(config);
-                    if (!slot.IsDestroyed) {
-                        slot.Destroy();
-                    }
-                }
-            }
-            void UpdateFilterOrder(FilterConfig moved) {
-                long i = 0;
-                foreach(var config in FilterConfigs) {
-                    if (knownConfigs.TryGetValue(config, out var slot)) {
-                        slot.OrderOffset = i++;
-                    }
-                }
-            }
-            FilterConfigs.ForEach(BuildFilterConfig);
-            OnFilterAdded += BuildFilterConfig;
-            OnFilterRemoved += RemoveFilterUI;
-            OnFilterMoved += UpdateFilterOrder;
-            builder.NestOut();
-        }
+        BuildHeader(builder);
         builder.Spacer(0f);
+        BuildContent(builder);
+        builder.Spacer(0f);
+        BuildFooter(builder);
+    }
+
+    private void BuildHeader(UIBuilder builder) {
+        builder.PushStyle();
+        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
         {
-            builder.PushStyle();
-            builder.Style.MinWidth = StyleHelpers.MIN_FILTER_LIST_WIDTH;
             builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING);
-            builder.PopStyle();
+
+            builder.Spacer(StyleHelpers.DEFAULT_MIN_SIZE);
 
             builder.PushStyle();
             builder.Style.FlexibleWidth = 1;
-            World world = builder.World;
-            ButtonAction.Create(builder, "Add Filter...", (user) => {
-                new FilterSelector<IFilter>(AddFilter).Setup(world, "Select Filter Type", user);
-            });
+            builder.Text($"<i>Filter</i>");
             builder.PopStyle();
 
             builder.PushStyle();
             builder.Style.Width = StyleHelpers.MATCH_RESPONSE_WIDTH;
-            builder.CreateSelection("Default", DefaultResult, (value) => DefaultResult = value, requiredResponses);
-            builder.PopStyle();
+            {
+                //ensure no interference between outer and inner layout
+                builder.Panel();
+                builder.PopStyle();
+
+                builder.PushStyle();
+                builder.Style.ForceExpandWidth = true;
+                builder.Style.ForceExpandHeight = true;
+                {
+                    builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING).Slot.Name += " (Match Responses)";
+                    builder.PopStyle();
+                    builder.PushStyle();
+                    builder.Style.FlexibleWidth = 1;
+                    {
+                        //Text has its own layout properties that would interfere with the intended layout.
+                        builder.Panel();
+                        builder.Text("<i>On Match</i>");
+                        builder.NestOut();
+                    }
+                    {
+                        builder.Panel();
+                        builder.Text("<i>Else</i>");
+                        builder.NestOut();
+                    }
+                    builder.PopStyle();
+                    builder.NestOut();
+                }
+                builder.NestOut();
+            }
 
             builder.Spacer(StyleHelpers.DEFAULT_MIN_SIZE);
 
             builder.NestOut();
         }
+        builder.PopStyle();
+    }
+
+    private void BuildContent(UIBuilder builder) {
+        Slot configListSlot = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING * 2).Slot;
+
+        var style = builder.Style.Clone();
+        Dictionary<FilterConfig, Slot> knownConfigs = [];
+        void BuildFilterConfig(FilterConfig config) {
+            UIBuilder builder = new(configListSlot);
+            StyleHelpers.CopyStyleProperties(style, builder.Style);
+
+            builder.NestInto(configListSlot);
+            {
+                var slot = builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
+                slot.Destroyed += (s) => RemoveFilter(config);
+                slot.Name += " (Filter Config)";
+                slot.OrderOffset = knownConfigs.Count;
+                knownConfigs[config] = slot;
+
+                builder.PushStyle();
+                builder.Style.Width = StyleHelpers.DEFAULT_MIN_SIZE;
+                {
+                    builder.VerticalLayout().Slot.Name += " (Position Arrows)";
+                    builder.PopStyle();
+                    builder.PushStyle();
+                    builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+                    ButtonAction.Create(builder, "↑", () => MoveFilterUp(config));
+                    builder.PopStyle();
+                    builder.PushStyle();
+                    builder.Style.FlexibleHeight = 1;
+                    builder.Next("Spacer");
+                    builder.PopStyle();
+                    builder.PushStyle();
+                    builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+                    ButtonAction.Create(builder, "↓", () => MoveFilterDown(config));
+                    builder.PopStyle();
+                    builder.NestOut();
+                }
+
+                builder.PushStyle();
+                builder.Style.FlexibleWidth = 1;
+                {
+                    builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
+                    builder.PopStyle();
+                    builder.PushStyle();
+                    builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+                    builder.Text($"<u>{config.Filter.Name}</u>");
+                    builder.PopStyle();
+                    config.Filter.Setup(builder);
+                    builder.NestOut();
+                }
+                builder.PushStyle();
+                builder.Style.Width = StyleHelpers.MATCH_RESPONSE_WIDTH;
+                {
+                    builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING).Slot.Name += " (Match Responses)";
+                    builder.PopStyle();
+                    builder.PushStyle();
+                    builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+                    builder.CreateSelection(null, config.OnMatch, (value) => config.OnMatch = value, optionalResponses);
+                    builder.CreateSelection(null, config.OnMismatch, (value) => config.OnMismatch = value, optionalResponses);
+                    builder.PopStyle();
+                    builder.NestOut();
+                }
+                builder.PushStyle();
+                builder.Style.Width = StyleHelpers.DEFAULT_MIN_SIZE;
+                {
+                    builder.VerticalLayout().Slot.Name += " (Remove)";
+                    builder.PopStyle();
+                    builder.PushStyle();
+                    builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+                    ButtonAction.Create(builder, "❌", () => RemoveFilter(config));
+                    builder.PopStyle();
+                    builder.NestOut();
+                }
+                builder.NestOut();
+            }
+
+            builder.NestOut();
+        }
+        void RemoveFilterUI(FilterConfig config) {
+            if (knownConfigs.TryGetValue(config, out var slot)) {
+                knownConfigs.Remove(config);
+                if (!slot.IsDestroyed) {
+                    slot.Destroy();
+                }
+            }
+        }
+        void UpdateFilterOrder(FilterConfig moved) {
+            long i = 0;
+            foreach (var config in FilterConfigs) {
+                if (knownConfigs.TryGetValue(config, out var slot)) {
+                    slot.OrderOffset = i++;
+                }
+            }
+        }
+        FilterConfigs.ForEach(BuildFilterConfig);
+        OnFilterAdded += BuildFilterConfig;
+        OnFilterRemoved += RemoveFilterUI;
+        OnFilterMoved += UpdateFilterOrder;
+        builder.NestOut();
+    }
+    private void BuildFooter(UIBuilder builder) {
+        builder.PushStyle();
+        builder.Style.MinWidth = StyleHelpers.MINIMUM_FILTER_LIST_WIDTH;
+        builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING);
+        builder.PopStyle();
+
+        builder.PushStyle();
+        builder.Style.FlexibleWidth = 1;
+        World world = builder.World;
+        ButtonAction.Create(builder, "Add Filter...", (user) => {
+            new FilterSelector<IFilter>(AddFilter).Setup(world, "Select Filter Type", user);
+        });
+        builder.PopStyle();
+
+        builder.PushStyle();
+        builder.Style.Width = StyleHelpers.MATCH_RESPONSE_WIDTH;
+        builder.CreateSelection("Default", DefaultResult, (value) => DefaultResult = value, requiredResponses);
+        builder.PopStyle();
+
+        builder.Spacer(StyleHelpers.DEFAULT_MIN_SIZE);
 
         builder.NestOut();
     }
