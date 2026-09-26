@@ -2,9 +2,7 @@
 using Elements.Core;
 
 using FrooxEngine;
-using FrooxEngine.UIX;
 
-using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.Sources;
 
 namespace ResoniteModularSearch.Filters.SubQueries;

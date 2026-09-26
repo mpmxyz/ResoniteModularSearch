@@ -1,7 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ResoniteModularSearch.Filters.TODO;
+﻿namespace ResoniteModularSearch.Filters.TODO;
 internal class ReplaceHierarchyAction {
 }

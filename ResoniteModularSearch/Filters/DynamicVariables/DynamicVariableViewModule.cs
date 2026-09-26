@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-using FrooxEngine;
+﻿using FrooxEngine;
 using FrooxEngine.UIX;
 
 using ResoniteModularSearch.DataModel;
