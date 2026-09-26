@@ -128,7 +128,7 @@ public class FilterSelector<T> {
                             break;
                         }
                     }
-                    PropertyEditor.CreateTypeEditor(builder, parameter.Name, typeArgs[currentIndex], (type) => UpdateTypeArgument(currentIndex, type));
+                    PropertyEditor.CreateTypeEditor(builder, parameter.Name, () => typeArgs[currentIndex], (type) => UpdateTypeArgument(currentIndex, type));
                     i++;
                 }
             }

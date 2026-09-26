@@ -154,6 +154,9 @@ internal static class DynamicVariableHelpers {
         //evaluate the input to guess where the dynamic variable space could be
         var group = node.Group;
         if (group != null && group.IsBuilt && group.IsValid) {
+            //BUG: Bow v12/Update Projectile Visuals has nodes that throw exceptions ("no evaluation sequence")
+            //TODO: figure out why there is no evaluation sequence
+            //TODO: check if node.Group.Rebuild() after exceptions can help;
             return node.Group.EvaluateImmediatelly((ObjectInput<Slot>)target, default);
         }
         return null;

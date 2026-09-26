@@ -5,6 +5,7 @@ using FrooxEngine.UIX;
 
 using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.Search;
+using ResoniteModularSearch.Views;
 
 namespace ResoniteModularSearch.Interaction;
 public class SearchResultDisplay {
@@ -55,23 +56,40 @@ public class SearchResultDisplay {
         selectionRef.OnTargetChange += (newSlot) => {
             SelectedElement = newSlot;
         };
-
-        builder.NestInto(columns[0]);
-        builder.CurrentRect.OffsetMin.Value = new(StyleHelpers.DEFAULT_SPACING, 0);
-        builder.CurrentRect.OffsetMax.Value = new(-StyleHelpers.DEFAULT_SPACING, 0);
-        builder.ScrollArea();
-        builder.FitContent(SizeFit.MinSize, SizeFit.MinSize);
-        var hierarchyContentLayout = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
-        var hierarchyContent = hierarchyContentLayout.Slot;
-        builder.NestOut();
-        builder.NestOut();
-        builder.NestInto(columns[1]);
-        builder.ScrollArea();
-        builder.FitContent(SizeFit.Disabled, SizeFit.MinSize);
-        var componentContent = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
-        builder.NestOut();
-        builder.NestOut();
-        //SearchResultDisplay display = new(hierarchyContent, componentContent, selectionRef, builder.Style.Clone());
+        Slot hierarchyContent;
+        {
+            builder.NestInto(columns[0]);
+            builder.CurrentRect.OffsetMin.Value = new(StyleHelpers.DEFAULT_SPACING, 0);
+            builder.CurrentRect.OffsetMax.Value = new(-StyleHelpers.DEFAULT_SPACING, 0);
+            builder.ScrollArea();
+            builder.FitContent(SizeFit.MinSize, SizeFit.MinSize);
+            {
+                hierarchyContent = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
+                builder.NestOut();
+            }
+            builder.NestOut();
+        }
+        Slot componentContent;
+        {
+            builder.NestInto(columns[1]);
+            builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
+            builder.CreateReferenceEditor("Filter to within Element:", () => SelectedElement, (newElement) => SelectedElement = newElement);
+            //builder.CreateSelection("Show", TODO: include/exclude children);
+            //TODO: keep displayed reference in sync with clicks within hierarchy view
+            {
+                builder.PushStyle();
+                builder.Style.FlexibleHeight = 1f;
+                builder.ScrollArea();
+                builder.PopStyle();
+                builder.FitContent(SizeFit.Disabled, SizeFit.MinSize);
+                {
+                    componentContent = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
+                    builder.NestOut();
+                }
+                builder.NestOut();
+            }
+            builder.NestOut();
+        }
         var styleBase = builder.Style.Clone();
         RebuildHierarchy += () => RebuildHierarchyContent(hierarchyContent, styleBase);
         RebuildResults += () => RebuildResultContent(componentContent, styleBase);
@@ -106,6 +124,7 @@ public class SearchResultDisplay {
 
     private void RebuildResultContent(Slot componentContentRoot, UIStyle styleBase) {
         var result = DisplayedResult;
+        
         componentContentRoot.RunSynchronously(() => {
             componentContentRoot.DestroyChildren();
             if (result == null) {
@@ -124,7 +143,7 @@ public class SearchResultDisplay {
                     if (nDisplayed <= MaxDisplayedResults){
                         nDisplayed++;
                         try {
-                            nDisplayed += new SearchResultItemView(item, result).TryBuild(builder);
+                            nDisplayed += ResultViewModuleComposition.Default.BuildResultItemView(builder, item, result);
                         } catch (Exception ex) {
                             if (ResoniteModularSearch.LogExceptions) {
                                 ResoniteModLoader.ResoniteMod.Error(ex);

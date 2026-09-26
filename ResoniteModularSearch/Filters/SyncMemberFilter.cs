@@ -20,7 +20,7 @@ public class SyncMemberFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { private get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.CreateRegexEditor("Name Pattern", NamePattern, (value) => NamePattern = value);
+        builder.CreateRegexEditor("Name Pattern", () => NamePattern, (value) => NamePattern = value);
     }
 
     public bool Match(IWorldElement element, SearchContext context) {

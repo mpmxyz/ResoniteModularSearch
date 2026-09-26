@@ -53,11 +53,11 @@ public partial class DynamicImpulseFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { get; set; }
 
     public void Setup(UIBuilder builder) { //BUG: check why not all variables of Bow v12 from DoAV are found
-        builder.CreateTypeEditor("Of type", OfType, (value) => OfType = value);
-        builder.CreateRegexEditor("Tag pattern", TagPattern, (value) => TagPattern = value);
+        builder.CreateTypeEditor("Of type", () => OfType, (value) => OfType = value);
+        builder.CreateRegexEditor("Tag pattern", () => TagPattern, (value) => TagPattern = value);
         
         foreach (var (kind, description) in ElementKindFilterDescriptions) {
-            builder.CreateValueEditor($"Include {description}", QueriedKinds.Contains(kind), (value) => {
+            builder.CreateValueEditor($"Include {description}", () => QueriedKinds.Contains(kind), (value) => {
                 if (value) {
                     QueriedKinds.Add(kind);
                 } else {
@@ -65,11 +65,11 @@ public partial class DynamicImpulseFilter : IFilter {
                 }
             });
         }
-        builder.CreateSelection(null, IsAsync, (value) => IsAsync = value, IsAsyncOptions);
-        builder.CreateSelection(null, WithValue, (value) => WithValue = value, WithValueOptions);
-        builder.CreateSelection(null, IsTrigger, (value) => IsTrigger = value, IsTriggerOptions);
-        builder.CreateSelection(null, IsEnabled, (value) => IsEnabled = value, IsEnabledOptions);
-        builder.CreateValueEditor("Replace tag with", ReplaceTagWith, (value) => ReplaceTagWith = value);
+        builder.CreateSelection(null, () => IsAsync, (value) => IsAsync = value, IsAsyncOptions);
+        builder.CreateSelection(null, () => WithValue, (value) => WithValue = value, WithValueOptions);
+        builder.CreateSelection(null, () => IsTrigger, (value) => IsTrigger = value, IsTriggerOptions);
+        builder.CreateSelection(null, () => IsEnabled, (value) => IsEnabled = value, IsEnabledOptions);
+        builder.CreateValueEditor("Replace tag with", () => ReplaceTagWith, (value) => ReplaceTagWith = value);
         ButtonAction.Create(builder, "Replace tag", () => ApplyAction?.Invoke(new ReplaceTagAction(this)));
     }
 

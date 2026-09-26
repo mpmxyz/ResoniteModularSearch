@@ -147,7 +147,7 @@ public class FromParent<T>(IWorldElement searchRoot) : ISearchSource where T : I
     public IEnumerable<IWorldElement> GetAllCandidates(Func<IWorldElement, bool> mask) {
         List<IWorldElement> candidateList = [];
         ProcessRoot(mask, candidateList);
-        ResoniteModularSearch.Msg($"Candidates: {candidateList.Count()}");
+        
         var results = candidateList.Where((output) => output is T && mask(output));
         if (IncludeSearchRoot) {
             return results;
@@ -159,8 +159,8 @@ public class FromParent<T>(IWorldElement searchRoot) : ISearchSource where T : I
 
     public void Setup(UIBuilder builder) {
         builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING); //TODO: move vertical layout out of filter UI generation -> use super setup
-        builder.CreateReferenceEditor("Search Root", SearchRoot, (value) => SearchRoot = value);
-        builder.CreateValueEditor("Max Depth (levels of slots)", MaxDepth, (value) => MaxDepth = value);
+        builder.CreateReferenceEditor("Search Root", () => SearchRoot, (value) => SearchRoot = value);
+        builder.CreateValueEditor("Max Depth (levels of slots)", () => MaxDepth, (value) => MaxDepth = value);
         //builder.CreateValueEditor("Include search root", IncludeSearchRoot, (value) => IncludeSearchRoot = value);
         builder.NestOut();
 

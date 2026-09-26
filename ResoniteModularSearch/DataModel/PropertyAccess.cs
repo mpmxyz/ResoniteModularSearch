@@ -1,4 +1,6 @@
-﻿using Elements.Core;
+﻿using System.Reflection;
+
+using Elements.Core;
 
 using FrooxEngine;
 using FrooxEngine.Undo;
@@ -59,5 +61,14 @@ public static class PropertyAccess {
             }
         }
         return replacementCount;
+    }
+
+
+
+    public static FieldInfo? TryGetSyncMemberFieldInfo(ISyncMember syncMember) {
+        if (syncMember.Parent is Worker worker) {
+            return worker.GetSyncMemberFieldInfo(syncMember.Name);
+        }
+        return null;
     }
 }

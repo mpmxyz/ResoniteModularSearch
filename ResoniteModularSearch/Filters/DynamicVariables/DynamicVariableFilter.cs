@@ -26,7 +26,7 @@ public partial class DynamicVariableFilter : IFilter {
     ];
     private static readonly PropertySelection.Option<bool?>[] MatchLinkedSpaceOptions =
     [
-        new(null, "Dynamic"),
+        new(null, "Auto"),
         new(true, "Only linked"),
         new(false, "Only defined name"),
     ];
@@ -48,14 +48,14 @@ public partial class DynamicVariableFilter : IFilter {
     public Action<IFilterAction>? ApplyAction { get; set; }
 
     public void Setup(UIBuilder builder) {
-        builder.CreateTypeEditor("Of type", OfType, (value) => OfType = value);
-        builder.CreateSelection("Search for", IsLinked, (value) => IsLinked = value, LinkOptions);
-        builder.CreateReferenceEditor("Within space", WithinSpace, (value) => WithinSpace = value);
-        builder.CreateRegexEditor("Space name pattern", SpaceNamePattern, (value) => SpaceNamePattern = value);
-        builder.CreateSelection("Matched space name", MatchLinkedSpaceName, (value) => MatchLinkedSpaceName = value, MatchLinkedSpaceOptions);
-        builder.CreateRegexEditor("Variable name pattern", VariableNamePattern, (value) => VariableNamePattern = value);
+        builder.CreateTypeEditor("Of type", () => OfType, (value) => OfType = value);
+        builder.CreateSelection("Search for", () => IsLinked, (value) => IsLinked = value, LinkOptions);
+        builder.CreateReferenceEditor("Within space", () => WithinSpace, (value) => WithinSpace = value);
+        builder.CreateRegexEditor("Space name pattern", () => SpaceNamePattern, (value) => SpaceNamePattern = value);
+        builder.CreateSelection("Matched space name", () => MatchLinkedSpaceName, (value) => MatchLinkedSpaceName = value, MatchLinkedSpaceOptions);
+        builder.CreateRegexEditor("Variable name pattern", () => VariableNamePattern, (value) => VariableNamePattern = value);
         foreach (var (kind, description) in ElementKindFilterDescriptions) {
-            builder.CreateValueEditor($"Include {description}", QueriedKinds.Contains(kind), (value) => {
+            builder.CreateValueEditor($"Include {description}", () => QueriedKinds.Contains(kind), (value) => {
                 if (value) {
                     QueriedKinds.Add(kind);
                 } else {
@@ -63,9 +63,9 @@ public partial class DynamicVariableFilter : IFilter {
                 }
             });
         }
-        builder.CreateValueEditor("Replace space name with", ReplaceSpaceNameWith, (value) => ReplaceSpaceNameWith = value);
+        builder.CreateValueEditor("Replace space name with", () => ReplaceSpaceNameWith, (value) => ReplaceSpaceNameWith = value);
         ButtonAction.Create(builder, "Replace space name", () => ApplyAction?.Invoke(new ReplaceSpaceNameAction(this)));
-        builder.CreateValueEditor("Replace variable name with", ReplaceVariableNameWith, (value) => ReplaceVariableNameWith = value);
+        builder.CreateValueEditor("Replace variable name with", () => ReplaceVariableNameWith, (value) => ReplaceVariableNameWith = value);
         ButtonAction.Create(builder, "Replace variable name", () => ApplyAction?.Invoke(new ReplaceVariableNameAction(this)));
         {
             builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING);

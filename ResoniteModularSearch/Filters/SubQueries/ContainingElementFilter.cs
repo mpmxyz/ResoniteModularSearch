@@ -23,7 +23,7 @@ public class ContainingElementFilter<TElement> : SubQueryFilterBase where TEleme
     }
 
     public override void Setup(UIBuilder builder) {
-        builder.CreateValueEditor("Max Depth (levels of slots)", MaxDepth, (value) => MaxDepth = value);
+        builder.CreateValueEditor("Max Depth (levels of slots)", () => MaxDepth, (value) => MaxDepth = value);
         base.Setup(builder);
     }
 }

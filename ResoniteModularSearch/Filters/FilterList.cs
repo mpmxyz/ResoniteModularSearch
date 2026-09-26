@@ -21,7 +21,7 @@ public class FilterList : IFilter {
         public bool? OnMismatch { get; set; } = onMismatch;
     }
 
-    //TODO: ensure no there are no cycles, ensure all changes to list are observed
+    //TODO: ensure there are no cycles, ensure all changes to list are observed
     public List<FilterConfig> FilterConfigs { get; set; } = [];
     public bool DefaultResult = true;
 
@@ -159,6 +159,7 @@ public class FilterList : IFilter {
                     builder.PopStyle();
                     builder.PushStyle();
                     builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+                    //TODO: add button+reference source to this text and receiver to the end of the list so you can move filters between lists
                     builder.Text($"<u>{config.Filter.Name}</u>");
                     builder.PopStyle();
                     config.Filter.Setup(builder);
@@ -171,8 +172,8 @@ public class FilterList : IFilter {
                     builder.PopStyle();
                     builder.PushStyle();
                     builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
-                    builder.CreateSelection(null, config.OnMatch, (value) => config.OnMatch = value, optionalResponses);
-                    builder.CreateSelection(null, config.OnMismatch, (value) => config.OnMismatch = value, optionalResponses);
+                    builder.CreateSelection(null, () => config.OnMatch, (value) => config.OnMatch = value, optionalResponses);
+                    builder.CreateSelection(null, () => config.OnMismatch, (value) => config.OnMismatch = value, optionalResponses);
                     builder.PopStyle();
                     builder.NestOut();
                 }
@@ -184,6 +185,7 @@ public class FilterList : IFilter {
                     builder.PushStyle();
                     builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
                     ButtonAction.Create(builder, "❌", () => RemoveFilter(config));
+                    //TODO: duplicate button
                     builder.PopStyle();
                     builder.NestOut();
                 }
@@ -230,7 +232,7 @@ public class FilterList : IFilter {
 
         builder.PushStyle();
         builder.Style.Width = StyleHelpers.MATCH_RESPONSE_WIDTH;
-        builder.CreateSelection("Default", DefaultResult, (value) => DefaultResult = value, requiredResponses);
+        builder.CreateSelection("Default", () => DefaultResult, (value) => DefaultResult = value, requiredResponses);
         builder.PopStyle();
 
         builder.Spacer(StyleHelpers.DEFAULT_MIN_SIZE);

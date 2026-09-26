@@ -51,9 +51,9 @@ public class SlotHierarchyView(Slot slot, SearchResult result, Action<IWorldElem
             builder.Style.Width = StyleHelpers.DEFAULT_MIN_SIZE;
             if (Result.RecursiveResultCount.GetValueOrDefault(Slot, 0) > Result.DirectSlotResultCount.GetValueOrDefault(Slot, 0)) {
                 //There are children: make visibility depend on 
-                builder.CreateSelection(null, Opened, (value) => Opened = value, visibilityOptions, attachArrows: false);
+                builder.CreateSelection(null, () => Opened, (value) => Opened = value, visibilityOptions, attachArrows: false);
             } else {
-                builder.CreateSelection(null, false, (value) => { }, noChildOptions, attachArrows: false);
+                builder.CreateSelection(null, () => false, (value) => { }, noChildOptions, attachArrows: false);
             }
             builder.PopStyle();
             builder.PushStyle();

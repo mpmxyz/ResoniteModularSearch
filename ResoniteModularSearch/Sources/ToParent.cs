@@ -52,8 +52,8 @@ public class ToParent<T>(IWorldElement searchRoot) : ISearchSource where T : IWo
 
     public void Setup(UIBuilder builder) {
         builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING); //TODO: move vertical layout out of filter UI generation -> use super setup
-        builder.CreateReferenceEditor("Search Root", SearchRoot, (value) => SearchRoot = value);
-        builder.CreateValueEditor("Max Depth (levels of slots)", MaxDepth, (value) => MaxDepth = value);
+        builder.CreateReferenceEditor("Search Root", () => SearchRoot, (value) => SearchRoot = value);
+        builder.CreateValueEditor("Max Depth (levels of slots)", () => MaxDepth, (value) => MaxDepth = value);
         builder.NestOut();
         //TODO: more options?
     }

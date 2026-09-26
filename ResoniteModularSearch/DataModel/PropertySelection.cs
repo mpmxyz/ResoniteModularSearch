@@ -11,14 +11,16 @@ public static class PropertySelection {
         public colorX? Color { get; } = color;
     }
 
-    public static void CreateSelection<T>(this UIBuilder builder, string? name, T initial, Action<T> onChange, IEnumerable<Option<T>> options, bool attachArrows = true) {
+    public static void CreateSelection<T>(this UIBuilder builder, string? name, Func<T> getter, Action<T> onChange, IEnumerable<Option<T>> options, bool attachArrows = true) {
         var optionList = options.ToList();
 
         //disconnect inner layouts from whatever happens outside
-        builder.Panel();
-
         builder.PushStyle();
         builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+        builder.Panel();
+        builder.PopStyle();
+
+        builder.PushStyle();
         builder.Style.TextLineHeight = 0.5f;
         builder.Style.TextAutoSizeMin = 16f;
         builder.Style.TextAutoSizeMax = 16f;
@@ -31,7 +33,10 @@ public static class PropertySelection {
         Button labelButton;
         {
             if (attachArrows) {
+                builder.PushStyle();
+                builder.Style.ForceExpandHeight = true;
                 builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING * 0.5f);
+                builder.PopStyle();
 
                 builder.PushStyle();
                 builder.Style.Width = StyleHelpers.DEFAULT_MIN_SIZE;
@@ -74,6 +79,7 @@ public static class PropertySelection {
 
         int i = -1;
         field.Value.Value = i;
+        var initial = getter();
         foreach (var option in optionList) {
             i++;
             if (object.Equals(option.Value, initial)) {
