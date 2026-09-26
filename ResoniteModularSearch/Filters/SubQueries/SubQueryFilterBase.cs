@@ -23,14 +23,13 @@ public abstract class SubQueryFilterBase : IFilter {
 
         public FilterActionResult TryApplyTo(IWorldElement element, SearchContext context) {
             var actionResult = FilterActionResult.Ignored;
-            if (context.Values.TryGetValue<Dictionary<SubQueryFilterBase, SearchResult>>(element, out var knownResults)) {
-                if (knownResults.TryGetValue(filter, out var subQueryResult)) {
+            if (context.Values.TryGetValue<SubQueryResultCollection>(element, out var resultCollection)) {
+                if (resultCollection.TryGetResult(filter, out var subQueryResult)) {
                     foreach (var result in subQueryResult.Results) {
                         actionResult += subQueryAction.TryApplyTo(result, subQueryResult.Context);
                     }
                 }
             }
-
             return actionResult;
         }
     }
@@ -66,11 +65,11 @@ public abstract class SubQueryFilterBase : IFilter {
         if (result.Results.Count == 0) {
             return false;
         }
-        if (!context.Values.TryGetValue<Dictionary<SubQueryFilterBase, SearchResult>>(element, out var knownResults)) {
-            knownResults = [];
-            context.Values.SetValue(element, knownResults);
+        if (!context.Values.TryGetValue<SubQueryResultCollection>(element, out var resultCollection)) {
+            resultCollection = new();
+            context.Values.SetValue(element, resultCollection);
         }
-        knownResults[this] = result;
+        resultCollection.AddResult(this, result);
         return true;
     }
 
