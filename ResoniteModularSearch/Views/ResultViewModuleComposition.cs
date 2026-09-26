@@ -7,6 +7,7 @@ using FrooxEngine.UIX;
 using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.Filters.DynamicImpulses;
 using ResoniteModularSearch.Filters.DynamicVariables;
+using ResoniteModularSearch.Filters.SubQueries;
 using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Views;
@@ -41,6 +42,7 @@ public class ResultViewModuleComposition {
         Default.RegisterModule(new DefaultViewAppender());
         Default.RegisterModule(new DynamicImpulseViewModule());
         Default.RegisterModule(new DynamicVariableViewModule());
+        Default.RegisterModule(new SubQueryViewModule());
     }
 
     public void RegisterModule(IResultViewAppender module) {
@@ -58,7 +60,7 @@ public class ResultViewModuleComposition {
 
     public int BuildResultItemView(UIBuilder builder, IWorldElement element, SearchResult result) {
         int nLines = 0;
-        var rootSlot = builder.HorizontalLayout().Slot;
+        var rootSlot = builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
         void DestroyRoot(IDestroyable destroyed) {
             if (!rootSlot.IsDestroyed){
                 rootSlot.Destroy();
@@ -74,10 +76,23 @@ public class ResultViewModuleComposition {
             };
         }
         {
-            //TODO: selection
+            builder.PushStyle();
+            builder.Style.Width = StyleHelpers.DEFAULT_MIN_SIZE;
+            builder.Style.ForceExpandWidth = true;
+            builder.Style.ForceExpandHeight = false;
+            builder.VerticalLayout();
+            builder.PopStyle();
+            builder.PushStyle();
+            builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+            builder.Checkbox(result.SelectedResults.Contains(element)).State.OnValueChange += (state) => result.SetSelected(element, state.Value);
+            //TODO: add way to update UI state from SearchResult (using result values?)
+            builder.PopStyle();
+            builder.NestOut();
         }
         {
+            builder.PushStyle();
             builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
+            builder.PopStyle();
             foreach (var module in Appenders) {
                 nLines += module.TryAppendUI(builder, element, result, this);
             }

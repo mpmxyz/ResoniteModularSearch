@@ -9,6 +9,7 @@ namespace ResoniteModularSearch.Search;
 public class SearchResult {
     private readonly ISet<IWorldElement> roots;
     private readonly ISet<IWorldElement> results;
+    private readonly ISet<IWorldElement> selectedResults;
 
     private readonly IDictionary<IWorldElement, int> recursiveResultCount;
     private readonly IDictionary<Slot, int> directSlotResultCount;
@@ -16,6 +17,7 @@ public class SearchResult {
 
     public ReadOnlySet<IWorldElement> Roots => roots.AsReadOnly();
     public ReadOnlySet<IWorldElement> Results => results.AsReadOnly();
+    public ReadOnlySet<IWorldElement> SelectedResults => selectedResults.AsReadOnly();
 
     public ReadOnlyDictionary<IWorldElement, int> RecursiveResultCount => recursiveResultCount.AsReadOnly();
     public ReadOnlyDictionary<Slot, int> DirectSlotResultCount => directSlotResultCount.AsReadOnly();
@@ -27,10 +29,17 @@ public class SearchResult {
     public event Action<IWorldElement>? OnResultAdded;
     public event Action<IWorldElement, int>? OnRecursiveResultCountChanged;
 
-    public SearchResult(SearchContext context, ISet<IWorldElement> roots, ISet<IWorldElement> results, IDictionary<IWorldElement, int> recursiveResultCount, IDictionary<Slot, int> directSlotResultCount, IDictionary<User, int> directUserResultCount) {
+    public SearchResult(SearchContext context,
+                        ISet<IWorldElement> roots,
+                        ISet<IWorldElement> results,
+                        ISet<IWorldElement> selectedResults,
+                        IDictionary<IWorldElement, int> recursiveResultCount,
+                        IDictionary<Slot, int> directSlotResultCount,
+                        IDictionary<User, int> directUserResultCount) {
         Context = context;
         this.roots = roots;
         this.results = results;
+        this.selectedResults = selectedResults;
         this.recursiveResultCount = recursiveResultCount;
         this.directSlotResultCount = directSlotResultCount;
         this.directUserResultCount = directUserResultCount;
@@ -39,6 +48,7 @@ public class SearchResult {
     public SearchResult(SearchContext context) : this(context: context,
                                                       roots: new HashSet<IWorldElement>(),
                                                       results: new HashSet<IWorldElement>(),
+                                                      selectedResults: new HashSet<IWorldElement>(),
                                                       recursiveResultCount: new Dictionary<IWorldElement, int>(),
                                                       directSlotResultCount: new Dictionary<Slot, int>(),
                                                       directUserResultCount: new Dictionary<User, int>()) {
@@ -54,6 +64,7 @@ public class SearchResult {
         if (!results.Add(result)) {
             return;
         }
+
         OnResultAdded?.Invoke(result);
 
         IWorldElement? incrementedItem = result;
@@ -76,11 +87,25 @@ public class SearchResult {
             OnRecursiveResultCountChanged?.Invoke(incrementedItem, newCount);
             incrementedItem = incrementedItem.Parent;
         }
+
+        SetSelected(result, true);
+    }
+
+    public void SetSelected(IWorldElement result, bool selected) {
+        if (!results.Contains(result)) {
+            throw new ArgumentException("Can only select elements that are part of the result!", nameof(result));
+        }
+        if (selected) {
+            selectedResults.Add(result);
+        } else {
+            selectedResults.Remove(result);
+        }
+        //TODO: run callback if select all/none is to be implemented
     }
 
     public FilterActionResult RunAction(IFilterAction action) {
         var result = FilterActionResult.Ignored;
-        foreach (var item in Results) {
+        foreach (var item in SelectedResults) {
             try {
                 result += action.TryApplyTo(item, Context);
             } catch (Exception e) {
