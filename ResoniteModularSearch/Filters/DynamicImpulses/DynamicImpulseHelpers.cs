@@ -4,11 +4,11 @@ using System.Reflection;
 using Elements.Core;
 
 using FrooxEngine;
-using FrooxEngine.FrooxEngine.ProtoFlux.CoreNodes;
 using FrooxEngine.ProtoFlux;
-using FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes;
 
 using ProtoFlux.Core;
+
+using ResoniteModularSearch.DataModel;
 
 namespace ResoniteModularSearch.Filters.DynamicImpulses;
 
@@ -87,25 +87,25 @@ internal static class DynamicImpulseHelpers {
                            isEnabled: buttonTrigger.Enabled);
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.DynamicImpulseReceiver node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGetFieldFromGlobalValue(node.Tag.Target),
+                           tagField: node.Tag.Target?.ValueElement as IField<string>,
                            isTrigger: false,
                            isAsync: false,
                            isEnabled: node.Slot.IsActive && (node.Slot.GetComponent<ProtoFlux.Runtimes.Execution.Nodes.Actions.DynamicImpulseReceiver.Proxy>()?.Enabled ?? true));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.DynamicImpulseTrigger node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGuessNodeNameField(node.Tag.Target),
+                           tagField: TryGuessTagField(node.Tag.Target),
                            isTrigger: true,
                            isAsync: false,
                            isEnabled: true);
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.AsyncDynamicImpulseReceiver node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGetFieldFromGlobalValue(node.Tag.Target),
+                           tagField: node.Tag.Target?.ValueElement as IField<string>,
                            isTrigger: false,
                            isAsync: true,
                            isEnabled: node.Slot.IsActive && (node.Slot.GetComponent<ProtoFlux.Runtimes.Execution.Nodes.Actions.AsyncDynamicImpulseReceiver.Proxy>()?.Enabled ?? true));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.AsyncDynamicImpulseTrigger node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGuessNodeNameField(node.Tag.Target),
+                           tagField: TryGuessTagField(node.Tag.Target),
                            isTrigger: true,
                            isAsync: true,
                            isEnabled: true);
@@ -123,28 +123,28 @@ internal static class DynamicImpulseHelpers {
         switch (element) {
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.DynamicImpulseReceiverWithValue<T> node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGetFieldFromGlobalValue(node.Tag.Target),
+                           tagField: node.Tag.Target?.ValueElement as IField<string>,
                            isTrigger: false,
                            isAsync: false,
                            isEnabled: node.Slot.IsActive && ( node.Slot.GetComponent<ProtoFlux.Runtimes.Execution.Nodes.Actions.DynamicImpulseReceiverWithValue<T>.Proxy>()?.Enabled ?? true),
                            type: typeof(T));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.DynamicImpulseTriggerWithValue<T> node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGuessNodeNameField(node.Tag.Target),
+                           tagField: TryGuessTagField(node.Tag.Target),
                            isTrigger: true,
                            isAsync: false,
                            isEnabled: true,
                            type: typeof(T));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.AsyncDynamicImpulseReceiverWithValue<T> node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGetFieldFromGlobalValue(node.Tag.Target),
+                           tagField: node.Tag.Target?.ValueElement as IField<string>,
                            isTrigger: false,
                            isAsync: true,
                            isEnabled: node.Slot.IsActive && (node.Slot.GetComponent<ProtoFlux.Runtimes.Execution.Nodes.Actions.AsyncDynamicImpulseReceiverWithValue<T>.Proxy>()?.Enabled ?? true),
                            type: typeof(T));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.AsyncDynamicImpulseTriggerWithValue<T> node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGuessNodeNameField(node.Tag.Target),
+                           tagField: TryGuessTagField(node.Tag.Target),
                            isTrigger: true,
                            isAsync: true,
                            isEnabled: true,
@@ -192,28 +192,28 @@ internal static class DynamicImpulseHelpers {
                            type: typeof(T));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.DynamicImpulseReceiverWithObject<T> node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGetFieldFromGlobalValue(node.Tag.Target),
+                           tagField: node.Tag.Target?.ValueElement as IField<string>,
                            isTrigger: false,
                            isAsync: false,
                            isEnabled: node.Slot.IsActive && (node.Slot.GetComponent<ProtoFlux.Runtimes.Execution.Nodes.Actions.DynamicImpulseReceiverWithObject<T>.Proxy>()?.Enabled ?? true),
                            type: typeof(T));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.DynamicImpulseTriggerWithObject<T> node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGuessNodeNameField(node.Tag.Target),
+                           tagField: TryGuessTagField(node.Tag.Target),
                            isTrigger: true,
                            isAsync: false,
                            isEnabled: true,
                            type: typeof(T));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.AsyncDynamicImpulseReceiverWithObject<T> node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGetFieldFromGlobalValue(node.Tag.Target),
+                           tagField: node.Tag.Target?.ValueElement as IField<string>,
                            isTrigger: false,
                            isAsync: true,
                            isEnabled: node.Slot.IsActive && (node.Slot.GetComponent<ProtoFlux.Runtimes.Execution.Nodes.Actions.AsyncDynamicImpulseReceiverWithObject<T>.Proxy>()?.Enabled ?? true),
                            type: typeof(T));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.Actions.AsyncDynamicImpulseTriggerWithObject<T> node:
                 return new(kind: DynamicImpulseElementKind.ProtoFlux,
-                           tagField: TryGuessNodeNameField(node.Tag.Target),
+                           tagField: TryGuessTagField(node.Tag.Target),
                            isTrigger: true,
                            isAsync: true,
                            isEnabled: true,
@@ -223,48 +223,9 @@ internal static class DynamicImpulseHelpers {
         }
     }
 
-    private static IField<T>? TryGetFieldFromGlobalValue<T>(IGlobalValueProxy<T> proxy) {
-        if (proxy is GlobalValue<T> global) {
-            return global.Value;
-        }
-        return null;
-    }
-    
-    private static Slot? TryGuessNodeSlot(ProtoFluxNode node, ObjectInput<Slot>? target) {
-        if (target == null || target?.Source == null) {
-            //default behavior of all dynvar nodes with slot input
-            return node.Slot;
-        }
-        //evaluate the input to guess where the dynamic variable space could be
-        var group = node.Group;
-        if (group != null && group.IsBuilt && group.IsValid) {
-            return node.Group.EvaluateImmediatelly((ObjectInput<Slot>)target, default);
-        }
-        return null;
-    }
-    private static Slot? TryGuessNodeSlot(ProtoFluxNode node, ObjectArgument<Slot>? target) {
-        ObjectInput<Slot>? convertedTarget = target != null ? new() {
-            Source = target?.Source
-        } : null;
-        return TryGuessNodeSlot(node, convertedTarget);
-    }
-    private static IField<string>? TryGuessNodeNameField(INodeObjectOutput<string>? nameInput) {
-        HashSet<INodeObjectOutput<string>> visitedInputs = [];
-        while (nameInput != null && visitedInputs.Add(nameInput)) {
-            switch(nameInput?.FindNearestParent<Component>()) {
-                case ValueObjectInput<string> input:
-                    return input.Value;
-                case ObjectRelay<string> relay:
-                    nameInput = relay.Input.Target;
-                    break;
-                case ContinuouslyChangingObjectRelay<string> relay:
-                    nameInput = relay.Input.Target;
-                    break;
-                case ObjectValueSource<string> source:
-                    return source.Source.Target?.Value as IField<string>;
-                default:
-                    return null;
-            }
+    private static IField<string>? TryGuessTagField(INodeObjectOutput<string>? nameInput) {
+        if (nameInput != null && ProtoFluxEvaluation.TryFindConstantField(nameInput, out var field)) {
+            return field;
         }
         return null;
     }

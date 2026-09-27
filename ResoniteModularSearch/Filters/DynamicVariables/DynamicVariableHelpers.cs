@@ -4,12 +4,12 @@ using System.Reflection;
 using Elements.Core;
 
 using FrooxEngine;
-using FrooxEngine.FrooxEngine.ProtoFlux.CoreNodes;
 using FrooxEngine.ProtoFlux;
-using FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes;
 using FrooxEngine.UIX;
 
 using ProtoFlux.Core;
+
+using ResoniteModularSearch.DataModel;
 
 namespace ResoniteModularSearch.Filters.DynamicVariables;
 
@@ -74,8 +74,8 @@ internal static class DynamicVariableHelpers {
                                    isSpaceOnly: true);
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ClearDynamicVariables node:
                 return new(kind: DynamicVariableElementKind.ProtoFlux,
-                                   TryGuessNodeNameField(node.SpaceName.Target),
-                                   attachedSlot: TryGuessNodeSlot(node, node.TypedNodeInstance?.Target),
+                                   TryGuessNameField(node.SpaceName.Target),
+                                   attachedSlot: TryGuessSearchSlot(node, node.TypedNodeInstance?.Target),
                                    isSpaceOnly: true);
             default:
                 return TryRunForDynamicVariable<AbstractedDynamicVariableElement>(element, nameof(TryGetAbstractedDynamicVariableElement))
@@ -96,39 +96,39 @@ internal static class DynamicVariableHelpers {
                            attachedSlot: dynvarReset.Slot);
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableInput<T> node:
                 return new(kind: DynamicVariableElementKind.ProtoFlux, 
-                           nameField: TryGetFieldFromGlobalValue(node.VariableName.Target),
+                           nameField: node.VariableName.Target?.ValueElement as IField<string>,
                            type: typeof(T),
                            attachedSlot: node.Slot);
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ReadDynamicVariable<T> node:
                 return new(kind: DynamicVariableElementKind.ProtoFlux,
-                           nameField: TryGuessNodeNameField(node.Path.Target),
+                           nameField: TryGuessNameField(node.Path.Target),
                            type: typeof(T),
-                           attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ReadDynamicVariable<T>)?.Source));
+                           attachedSlot: TryGuessSearchSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ReadDynamicVariable<T>)?.Source));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.WriteDynamicVariable<T> node:
                 return new(kind: DynamicVariableElementKind.ProtoFlux,
-                           nameField: TryGuessNodeNameField(node.Path.Target),
+                           nameField: TryGuessNameField(node.Path.Target),
                            type: typeof(T),
-                           attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
+                           attachedSlot: TryGuessSearchSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.CreateDynamicVariable<T> node:
                 return new(kind: DynamicVariableElementKind.ProtoFlux,
-                           nameField: TryGuessNodeNameField(node.Path.Target),
+                           nameField: TryGuessNameField(node.Path.Target),
                            type: typeof(T),
-                           attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
+                           attachedSlot: TryGuessSearchSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.WriteOrCreateDynamicVariable<T> node:
                 return new(kind: DynamicVariableElementKind.ProtoFlux,
-                           nameField: TryGuessNodeNameField(node.Path.Target),
+                           nameField: TryGuessNameField(node.Path.Target),
                            type: typeof(T),
-                           attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
+                           attachedSlot: TryGuessSearchSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DeleteDynamicVariable<T> node:
                 return new(kind: DynamicVariableElementKind.ProtoFlux,
-                           nameField: TryGuessNodeNameField(node.Path.Target),
+                           nameField: TryGuessNameField(node.Path.Target),
                            type: typeof(T),
-                           attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
+                           attachedSlot: TryGuessSearchSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target));
             case FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.ClearDynamicVariablesOfType<T> node:
                 return new(kind: DynamicVariableElementKind.ProtoFlux,
-                           nameField: TryGuessNodeNameField(node.SpaceName.Target),
+                           nameField: TryGuessNameField(node.SpaceName.Target),
                            type: typeof(T),
-                           attachedSlot: TryGuessNodeSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target),
+                           attachedSlot: TryGuessSearchSlot(node, (node.NodeInstance as ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables.DynamicVariableAction)?.Target),
                            isSpaceOnly: true);
             case HoverDynamicValueSet<T> valueSet:
                 return new(kind: DynamicVariableElementKind.ButtonInteraction,
@@ -139,51 +139,28 @@ internal static class DynamicVariableHelpers {
                 throw new NotImplementedException($"Error: Missing implementation to handle type {element.GetType()}");
         }
     }
-    private static IField<T>? TryGetFieldFromGlobalValue<T>(IGlobalValueProxy<T> proxy) {
-        if (proxy is GlobalValue<T> global) {
-            return global.Value;
-        }
-        return null;
-    }
-    
-    private static Slot? TryGuessNodeSlot(ProtoFluxNode node, ObjectInput<Slot>? target) {
-        if (target == null || target?.Source == null) {
+
+    private static Slot? TryGuessSearchSlot(ProtoFluxNode node, ObjectInput<Slot>? target) {
+        if (!target.HasValue || target?.Source == null) {
             //default behavior of all dynvar nodes with slot input
             return node.Slot;
         }
         //evaluate the input to guess where the dynamic variable space could be
         var group = node.Group;
-        if (group != null && group.IsBuilt && group.IsValid) {
-            //BUG: Bow v12/Update Projectile Visuals has nodes that throw exceptions ("no evaluation sequence")
-            //TODO: figure out why there is no evaluation sequence
-            //TODO: check if node.Group.Rebuild() after exceptions can help;
-            return node.Group.EvaluateImmediatelly((ObjectInput<Slot>)target, default);
+        if (group != null && ProtoFluxEvaluation.TryEvaluate(group, target.Value, out var slot)) {
+            return slot;
         }
         return null;
     }
-    private static Slot? TryGuessNodeSlot(ProtoFluxNode node, ObjectArgument<Slot>? target) {
+    private static Slot? TryGuessSearchSlot(ProtoFluxNode node, ObjectArgument<Slot>? target) {
         ObjectInput<Slot>? convertedTarget = target != null ? new() {
             Source = target?.Source
         } : null;
-        return TryGuessNodeSlot(node, convertedTarget);
+        return TryGuessSearchSlot(node, convertedTarget);
     }
-    private static IField<string>? TryGuessNodeNameField(INodeObjectOutput<string>? nameInput) {
-        HashSet<INodeObjectOutput<string>> visitedInputs = [];
-        while (nameInput != null && visitedInputs.Add(nameInput)) {
-            switch(nameInput?.FindNearestParent<Component>()) {
-                case ValueObjectInput<string> input:
-                    return input.Value;
-                case ObjectRelay<string> relay:
-                    nameInput = relay.Input.Target;
-                    break;
-                case ContinuouslyChangingObjectRelay<string> relay:
-                    nameInput = relay.Input.Target;
-                    break;
-                case ObjectValueSource<string> source:
-                    return source.Source.Target?.Value as IField<string>;
-                default:
-                    return null;
-            }
+    private static IField<string>? TryGuessNameField(INodeObjectOutput<string>? nameInput) {
+        if (nameInput != null && ProtoFluxEvaluation.TryFindConstantField(nameInput, out var field)) {
+            return field;
         }
         return null;
     }
