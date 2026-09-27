@@ -6,7 +6,7 @@ using ResoniteModularSearch.Search;
 namespace ResoniteModularSearch.Views;
 
 /// <summary>
-/// Masks allow removing elements from (default) views. (example: remuve distracting properties from dynamic variables)
+/// Masks allow removing elements from (default) views. (example: remove distracting properties from dynamic variables)
 /// </summary>
 public interface IResultViewMask : IResultViewModule {
     /// <summary>

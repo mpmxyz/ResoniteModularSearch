@@ -25,7 +25,17 @@ public class DefaultViewAppender : IResultViewAppender {
             uiSlot.Name += " (Worker)";
             var workerInspector = uiSlot.AttachComponent<WorkerInspector>();
             builder.PushStyle();
-            workerInspector.Setup(worker, (member) => !(element is Slot && member is WorkerBag<Component>) && !composition.TryGetMaskSource(member, result, worker, out var _));
+            bool IsMemberShown(ISyncMember member) {
+                if (element is Slot && member is WorkerBag<Component>) {
+                    return false;
+                }
+                if (composition.TryGetMaskSource(member, result, worker, out var _)) {
+                    //TODO: option
+                    return false;
+                }
+                return true;
+            }
+            workerInspector.Setup(worker, IsMemberShown);
             builder.PopStyle();
             nLines += worker.SyncMemberCount + 1;
             builder.NestOut();

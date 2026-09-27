@@ -2,15 +2,32 @@
 using FrooxEngine.UIX;
 
 using ResoniteModularSearch.DataModel;
+using ResoniteModularSearch.Filters.DynamicVariables;
 using ResoniteModularSearch.Search;
 using ResoniteModularSearch.Views;
 
 namespace ResoniteModularSearch.Filters.DynamicImpulses;
-public class DynamicImpulseViewModule : IResultViewAppender {
+public class DynamicImpulseViewModule : IResultViewAppender, IResultViewMask {
     public int AppendOffset { get; set; } = +10;
+    public int MaskOffset { get; set; } = +10;
 
-    public void Setup(UIBuilder builder) {
-        throw new NotImplementedException();
+    public bool MasksElement(IWorldElement element, SearchResult result, IWorker? partOf) {
+        if (partOf != null) {
+            if (result.Context.Values.TryGetValue<AbstractedDynamicVariableElement>(element, out var abstractedDynVar)) {
+                switch (element.Name) {
+                    case "UpdateOrder":
+                        return true;
+                    case "Enabled":
+                        return true;
+                    case "Persistent":
+                        //TODO: option
+                        return true;
+                    case "Tag":
+                        return true;
+                }
+            }
+        }
+        return false;
     }
 
     public int TryAppendUI(UIBuilder builder, IWorldElement element, SearchResult result, ResultViewModuleComposition composition) {
@@ -33,5 +50,9 @@ public class DynamicImpulseViewModule : IResultViewAppender {
             }
         }
         return nLines;
+    }
+
+    public void Setup(UIBuilder builder) {
+        throw new NotImplementedException();
     }
 }
