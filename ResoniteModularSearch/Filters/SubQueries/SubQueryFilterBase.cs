@@ -25,9 +25,7 @@ public abstract class SubQueryFilterBase : IFilter {
             var actionResult = FilterActionResult.Ignored;
             if (context.Values.TryGetValue<SubQueryResultCollection>(element, out var resultCollection)) {
                 if (resultCollection.TryGetResult(filter, out var subQueryResult)) {
-                    foreach (var result in subQueryResult.Results) {
-                        actionResult += subQueryAction.TryApplyTo(result, subQueryResult.Context);
-                    }
+                    return subQueryResult.RunAction(subQueryAction);
                 }
             }
             return actionResult;
