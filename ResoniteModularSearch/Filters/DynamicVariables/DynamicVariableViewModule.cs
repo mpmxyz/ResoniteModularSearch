@@ -12,7 +12,7 @@ public class DynamicVariableViewModule : IResultViewAppender, IResultViewMask {
 
     public bool MasksElement(IWorldElement element, SearchResult result, IWorker? partOf) {
         if (partOf != null) {
-            if (result.Context.Values.TryGetValue<AbstractedDynamicVariableElement>(element, out var abstractedDynVar)) {
+            if (result.Context.Values.TryGetValue<AbstractedDynamicVariableElement>(partOf, out var abstractedDynVar)) {
                 switch(element.Name) {
                     case "UpdateOrder":
                         return true;
