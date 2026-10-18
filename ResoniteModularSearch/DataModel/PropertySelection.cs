@@ -5,13 +5,14 @@ using FrooxEngine.UIX;
 
 namespace ResoniteModularSearch.DataModel;
 public static class PropertySelection {
-    public readonly struct Option<T>(T value, string description, colorX? color = null) {
+    public readonly struct Option<T>(T value, string description, colorX? backgroundColor = null, colorX? textColor = null) {
         public T Value { get; } = value;
         public string Description { get; } = description;
-        public colorX? Color { get; } = color;
+        public colorX? BackgroundColor { get; } = backgroundColor;
+        public colorX? TextColor { get; } = textColor;
     }
 
-    public static void CreateSelection<T>(this UIBuilder builder, string? name, Func<T> getter, Action<T> onChange, IEnumerable<Option<T>> options, bool attachArrows = true) {
+    public static PropertyUI CreateSelection<T>(this UIBuilder builder, string? name, Func<T> getter, Action<T> onChange, IEnumerable<Option<T>> options, bool attachArrows = true) {
         var optionList = options.ToList();
 
         //disconnect inner layouts from whatever happens outside
@@ -66,27 +67,36 @@ public static class PropertySelection {
         var defaultTextColor = labelText.Color.Value;
         var defaultBackgroundColor = labelBackground.Tint.Value;
         void UpdateVisuals(int i) {
+            if (i < 0) {
+                labelText.Content.Value = "???";
+                labelBackground.Tint.Value = defaultBackgroundColor;
+                return;
+            }
             var option = optionList[i];
             if (name != null) {
                 labelText.Content.Value = $"{name}: {option.Description}";
             } else {
                 labelText.Content.Value = option.Description;
             }
-            //labelText.Color.Value = defaultTextColor; //TODO
+            labelText.Color.Value = option.TextColor ?? defaultTextColor;
             //This works because InteractionElement.ColorDriver sets up a hook that changes color presets to match what has been written.
-            labelBackground.Tint.Value = option.Color ?? defaultBackgroundColor;
+            labelBackground.Tint.Value = option.BackgroundColor ?? defaultBackgroundColor;
         }
 
-        int i = -1;
-        field.Value.Value = i;
-        var initial = getter();
-        foreach (var option in optionList) {
-            i++;
-            if (object.Equals(option.Value, initial)) {
-                UpdateVisuals(i);
-                field.Value.Value = i;
+        void OnRefresh() {
+            int i = -1;
+            field.Value.Value = i;
+            var initial = getter();
+            foreach (var option in optionList) {
+                i++;
+                if (object.Equals(option.Value, initial)) {
+                    field.Value.Value = i;
+                    break;
+                }
             }
+            UpdateVisuals(field.Value.Value);
         }
+        OnRefresh();
         property.OnValueChange += (i) => {
             if (i >= 0 && i < optionList.Count) {
                 UpdateVisuals(i);
@@ -94,6 +104,7 @@ public static class PropertySelection {
             }
         };
         builder.NestOut();
+        return new PropertyUI(OnRefresh);
     }
 
     private static Button BuildShiftButton(UIBuilder builder, string text, IField<int> property, int delta, int optionCount) {
