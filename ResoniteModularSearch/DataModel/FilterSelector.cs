@@ -136,18 +136,22 @@ public class FilterSelector<T> {
         builder.NestOut();
     }
 
-    public void Setup(World world, string title, User? user = null) {
-        Slot slot = world.LocalUserSpace.AddSlot(title);
-#pragma warning disable CS8604 // Possible null reference argument.
-        //TODO: create homegrown solution because the mod owner's viewing angle is applied even if user!=null
-        slot.PositionInFrontOfUser(float3.Backward, user: user);
-#pragma warning restore CS8604 // Possible null reference argument.
-        slot.DestroyWhenUserLeaves(slot.LocalUser);
-        slot.ScaleToUser(slot.LocalUser);
-        var builder = RadiantUI_Panel.SetupPanel(slot, $"{title}...", new float2(0.4f,0.8f), pinButton: false);
-        builder.Style.MinHeight = 48f;
+    public void Setup(RectTransform origin, string title) {
+        Slot slot = origin.Slot.AddSlot(title);
+        Slot originSlot = origin.Canvas.Slot;
+        slot.GlobalPosition = originSlot.LocalPointToGlobal(origin.ComputeGlobalComputeRect().Center);
+        slot.GlobalRotation = originSlot.GlobalRotation;
+        slot.GlobalScale = originSlot.GlobalScale;
+        //offset canvas a bit in front of the original canvas (canvas scale is 0.001f -> 10 units are 1cm)
+        slot.GlobalPosition += slot.GlobalRotation * float3.Backward * 10f * slot.GlobalScale;
+
+        slot.Tag = "Developer";
+        var builder = RadiantUI_Panel.SetupPanel(slot, $"{title}...", StyleHelpers.FILTER_SELECTOR_CANVAS_SIZE, pinButton: false);
+        //make sure that the selector remains a part of the parent canvas
+        slot.GetComponent<Grabbable>()?.Destroy();
+
+        builder.Style.MinHeight = StyleHelpers.FILTER_SELECTOR_ITEM_HEIGHT;
         builder.Style.ForceExpandHeight = false;
-        builder.Canvas.UnitScale.Value = 1000f;
         builder.ScrollArea();
         builder.FitContent(SizeFit.Disabled, SizeFit.MinSize);
         Setup(builder);

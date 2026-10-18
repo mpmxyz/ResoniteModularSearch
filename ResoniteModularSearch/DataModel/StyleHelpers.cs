@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 
+using Elements.Core;
+
 using FrooxEngine.UIX;
 
 namespace ResoniteModularSearch.DataModel;
@@ -9,6 +11,9 @@ public static class StyleHelpers {
     public const float MINIMUM_SLOT_NAME_WIDTH = 200f;
     public const float DEFAULT_SPACING = 4f;
     public const float MINIMUM_FILTER_LIST_WIDTH = 700f;
+    public const float WORKER_HEADER_HEIGHT = 32;
+    public const float FILTER_SELECTOR_ITEM_HEIGHT = 48f;
+    public static readonly float2 FILTER_SELECTOR_CANVAS_SIZE = new(400f,800f);
 
     public static void CopyStyleProperties(UIStyle source, UIStyle target) {
         CopyProperties(source, target);

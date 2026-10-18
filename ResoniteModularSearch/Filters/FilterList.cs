@@ -21,7 +21,7 @@ public class FilterList : IFilter {
         public bool? OnMismatch { get; set; } = onMismatch;
     }
 
-    //TODO: ensure there are no cycles, ensure all changes to list are observed
+    //TODO: remove setter or add code to ensure no cycles
     public List<FilterConfig> FilterConfigs { get; set; } = [];
     public bool DefaultResult = true;
 
@@ -160,6 +160,7 @@ public class FilterList : IFilter {
                     builder.PushStyle();
                     builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
                     //TODO: add button+reference source to this text and receiver to the end of the list so you can move filters between lists
+                    //      -> prevent illegal moves (moving parent into one of its children)
                     builder.Text($"<u>{config.Filter.Name}</u>");
                     builder.PopStyle();
                     config.Filter.Setup(builder);
@@ -219,15 +220,19 @@ public class FilterList : IFilter {
     private void BuildFooter(UIBuilder builder) {
         builder.PushStyle();
         builder.Style.MinWidth = StyleHelpers.MINIMUM_FILTER_LIST_WIDTH;
-        builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING);
+        Slot footerSlot = builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
         builder.PopStyle();
+
 
         builder.PushStyle();
         builder.Style.FlexibleWidth = 1;
         World world = builder.World;
+        RectTransform? buttonTransform = null;
         ButtonAction.Create(builder, "Add Filter...", (user) => {
-            new FilterSelector<IFilter>(AddFilter).Setup(world, "Select Filter Type", user);
+            new FilterSelector<IFilter>(AddFilter).Setup(buttonTransform!, "Select Filter Type");
         });
+        //This assumes a bit much on how the UI is built...
+        buttonTransform = footerSlot.Children[0].GetComponent<RectTransform>();
         builder.PopStyle();
 
         builder.PushStyle();
@@ -241,6 +246,7 @@ public class FilterList : IFilter {
     }
 
     public void AddFilter(IFilter filter) {
+        //TODO: ensure there are no cycles?
         FilterConfig newConfig = new(filter, DefaultResult ? null : true, DefaultResult ? false : null);
         FilterConfigs.Add(newConfig);
         filter.ApplyAction = ApplyAction;
