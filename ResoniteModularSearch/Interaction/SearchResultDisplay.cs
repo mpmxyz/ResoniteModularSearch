@@ -9,6 +9,13 @@ using ResoniteModularSearch.Views;
 
 namespace ResoniteModularSearch.Interaction;
 public class SearchResultDisplay {
+    private static readonly colorX COLOR_EXCLUDE_CHILDREN = colorX.Red.SetValue(ColorHSV.GetValue(colorX.Gray));
+    private static readonly colorX COLOR_INCLUDE_CHILDREN = colorX.Green.SetValue(ColorHSV.GetValue(colorX.Gray));
+    private static readonly List<PropertySelection.Option<bool>> childDisplayOptions = [
+        new(true, "✔ Include Children", COLOR_INCLUDE_CHILDREN),
+        new(false, "✘ Exclude Children", COLOR_EXCLUDE_CHILDREN)
+    ];
+
     private SearchResult? displayedResult = null;
     public SearchResult? DisplayedResult {
         get => displayedResult;
@@ -44,6 +51,17 @@ public class SearchResultDisplay {
         }
     }
 
+    private bool includeChildren = true;
+    public bool IncludeChildren {
+        get => includeChildren;
+        set {
+            if (value != includeChildren) {
+                includeChildren = value;
+                RebuildResults?.Invoke();
+            }
+        }
+    }
+
     private event Action? RebuildHierarchy = null;
     private event Action? RebuildResults = null;
 
@@ -70,12 +88,12 @@ public class SearchResultDisplay {
             builder.NestOut();
         }
         Slot componentContent;
+        PropertyUI selectionUI;
         {
             builder.NestInto(columns[1]);
             builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
-            builder.CreateReferenceEditor("Filter to within Element:", () => SelectedElement, (newElement) => SelectedElement = newElement);
-            //builder.CreateSelection("Show", TODO: include/exclude children);
-            //TODO: keep displayed reference in sync with clicks within hierarchy view
+            selectionUI = builder.CreateReferenceEditor("Show results within", () => SelectedElement, (newElement) => SelectedElement = newElement);
+            builder.CreateSelection(null, () => IncludeChildren, (value) => IncludeChildren = value, childDisplayOptions);
             {
                 builder.PushStyle();
                 builder.Style.FlexibleHeight = 1f;
@@ -92,7 +110,7 @@ public class SearchResultDisplay {
         }
         var styleBase = builder.Style.Clone();
         RebuildHierarchy += () => RebuildHierarchyContent(hierarchyContent, styleBase);
-        RebuildResults += () => RebuildResultContent(componentContent, styleBase);
+        RebuildResults += () => RebuildResultContent(componentContent, styleBase, selectionUI);
         RebuildHierarchy();
         RebuildResults();
     }
@@ -122,10 +140,11 @@ public class SearchResultDisplay {
         });
     }
 
-    private void RebuildResultContent(Slot componentContentRoot, UIStyle styleBase) {
+    private void RebuildResultContent(Slot componentContentRoot, UIStyle styleBase, PropertyUI selectionUI) {
         var result = DisplayedResult;
         
         componentContentRoot.RunSynchronously(() => {
+            selectionUI.Refresh();
             componentContentRoot.DestroyChildren();
             if (result == null) {
                 return;
@@ -137,25 +156,13 @@ public class SearchResultDisplay {
             int nSkipped = 0;
             foreach (var item in result.Results) {
                 //TODO: spread UI generation over multiple frames OR make it wait until scrolled enough
-                //TODO: option to not show anything with selectedItem==null (if UI generation is not limited)
-                //TODO: option to only show elements directly within Slot
-                if (SelectedElement == null || item.IsChildOfElement(SelectedElement) || item == SelectedElement) {
-                    if (nDisplayed <= MaxDisplayedResults){
-                        nDisplayed++;
-                        try {
-                            nDisplayed += ResultViewModuleComposition.Default.BuildResultItemView(builder, item, result);
-                        } catch (Exception ex) {
-                            if (ResoniteModularSearch.LogExceptions) {
-                                ResoniteModLoader.ResoniteMod.Error(ex);
-                            }
-                            builder.PushStyle();
-                            builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
-                            builder.Text(ex.Message).Color.Value = colorX.Red;
-                            builder.PopStyle();
-                        }
-                    } else {
-                        nSkipped++;
-                    }
+                if (IsResultItemHidden(item)) {
+                    continue;
+                }
+                if (nDisplayed <= MaxDisplayedResults){
+                    nDisplayed += Math.Max(TryDisplayResultItem(builder, item, result), 1);
+                } else {
+                    nSkipped++;
                 }
             }
             if (nSkipped > 0) {
@@ -166,5 +173,31 @@ public class SearchResultDisplay {
                 builder.PopStyle();
             }
         });
+    }
+
+    private bool IsResultItemHidden(IWorldElement resultItem) {
+        if (SelectedElement != null && resultItem != SelectedElement) {
+            if (IncludeChildren) {
+                return !resultItem.IsChildOfElement(SelectedElement);
+            } else {
+                return resultItem.FindNearestParent<Slot>() != SelectedElement;
+            }
+        }
+        return false;
+    }
+
+    private int TryDisplayResultItem(UIBuilder builder, IWorldElement resultItem, SearchResult result) {
+        try {
+            return ResultViewModuleComposition.Default.BuildResultItemView(builder, resultItem, result);
+        } catch (Exception ex) {
+            if (ResoniteModularSearch.LogExceptions) {
+                ResoniteModLoader.ResoniteMod.Error(ex);
+            }
+            builder.PushStyle();
+            builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+            builder.Text(ex.Message).Color.Value = colorX.Red;
+            builder.PopStyle();
+            return 1;
+        }
     }
 }
