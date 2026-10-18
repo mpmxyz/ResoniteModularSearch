@@ -91,6 +91,7 @@ public class ResultViewModuleComposition {
         }
         {
             builder.PushStyle();
+            builder.Style.FlexibleWidth = 1f;
             builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
             builder.PopStyle();
             foreach (var module in Appenders) {

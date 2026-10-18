@@ -1,4 +1,6 @@
-﻿using FrooxEngine;
+﻿using Elements.Core;
+
+using FrooxEngine;
 using FrooxEngine.UIX;
 
 using ResoniteModularSearch.DataModel;
@@ -18,13 +20,27 @@ public class DefaultViewAppender : IResultViewAppender {
         }
         int nLines = 0;
         if (element is Worker worker) {
-            var uiSlot = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
-            if (element is Slot slot) {
-                //TODO: add header
-            }
+            Slot uiSlot = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
             uiSlot.Name += " (Worker)";
-            var workerInspector = uiSlot.AttachComponent<WorkerInspector>();
+            WorkerInspector workerInspector = uiSlot.AttachComponent<WorkerInspector>();
+            if (element is Slot slot) {
+                builder.PushStyle();
+                builder.Style.Height = 32f;
+                builder.HorizontalLayout(4f);
+                builder.Style.FlexibleWidth = 1f;
+                Type type = worker.GetType();
+                Button button = builder.Button("<b>" + type.GetNiceName() + "</b>", RadiantUI_Constants.BUTTON_COLOR);
+                button.Label.Color.Value = RadiantUI_Constants.LABEL_COLOR;
+                builder.Style.FlexibleWidth = 0f;
+                builder.Style.MinWidth = 40f;
+                Hyperlink.AttachForWikiPage(builder.Button(OfficialAssets.Graphics.Icons.Inspector.Help, RadiantUI_Constants.Sub.CYAN).Slot, type);
+                button.Slot.AttachComponent<ReferenceProxySource>().Reference.Target = worker;
+                builder.PopStyle();
+                builder.NestOut();
+            }
             builder.PushStyle();
+            //Note: This does not work because WorkerInspector.Setup does not use the predicate.
+            //Yellow-Dog-Man/Resonite-Issues#3567
             bool IsMemberShown(ISyncMember member) {
                 if (element is Slot && member is WorkerBag<Component>) {
                     return false;
