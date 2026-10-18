@@ -12,7 +12,8 @@ namespace ResoniteModularSearch.Filters.SubQueries;
 [Filter("Containing Element")]
 public class ContainingElementFilter<TElement> : SubQueryFilterBase where TElement : IWorldElement {
     public override string Name => $"Containing {typeof(TElement).GetNiceName()}";
-    public int MaxDepth { get; set; } = -1;
+    //slot recursion is only enabled for type Slot by default (with depth=1 -> direct children to avoid performance issues)
+    public int MaxDepth { get; set; } = typeof(TElement) == typeof(Slot) ? 1 : 0;
 
     public override ISearchSource GetSubQueryElements(IWorldElement element) {
         var source = new FromParent<TElement>(element) {
