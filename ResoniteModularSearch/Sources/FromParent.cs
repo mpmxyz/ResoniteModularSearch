@@ -60,28 +60,28 @@ public class FromParent<T>(IWorldElement searchRoot) : ISearchSource where T : I
         }
     }
 
-    public void ProcessComponentList(IEnumerable<Component> components, List<IWorldElement> outputList) {
+    public void ProcessComponentList(IEnumerable<Component> components, Func<IWorldElement, bool> mask, List<IWorldElement> outputList) {
         if (IncludeComponents) {
             outputList.AddRange(components);
         }
-        ProcessContainedSyncMembers(components, outputList);
+        ProcessContainedSyncMembers(components, mask, outputList);
     }
-    public void ProcessUserComponentList(IEnumerable<UserComponent> components, List<IWorldElement> outputList) {
+    public void ProcessUserComponentList(IEnumerable<UserComponent> components, Func<IWorldElement, bool> mask, List<IWorldElement> outputList) {
         if (IncludeComponents) {
             outputList.AddRange(components);
         }
-        ProcessContainedSyncMembers(components, outputList);
+        ProcessContainedSyncMembers(components, mask, outputList);
     }
 
     public void ProcessSlotList(IEnumerable<Slot> slots, Func<IWorldElement, bool> mask, int previousDepth, List<IWorldElement> outputList) {
         if (IncludeContainers) {
             outputList.AddRange(slots);
         }
-        ProcessContainedSyncMembers(slots, outputList);
+        ProcessContainedSyncMembers(slots, mask, outputList);
         if (VisitComponents) {
             foreach (var slot in slots) {
                 if (mask(slot)) {
-                    ProcessComponentList(slot.Components, outputList);
+                    ProcessComponentList(slot.Components, mask, outputList);
                 }
             }
         }
@@ -93,32 +93,34 @@ public class FromParent<T>(IWorldElement searchRoot) : ISearchSource where T : I
             }
         }
     }
-    public void ProcessUserList(IEnumerable<User> users, List<IWorldElement> outputList) {
+    public void ProcessUserList(IEnumerable<User> users, Func<IWorldElement, bool> mask, List<IWorldElement> outputList) {
         if (IncludeContainers) {
             outputList.AddRange(users);
         }
-        ProcessContainedSyncMembers(users, outputList);
+        ProcessContainedSyncMembers(users, mask, outputList);
         if (VisitComponents) {
             foreach (var user in users) {
-                ProcessUserComponentList(user.Components, outputList);
+                ProcessUserComponentList(user.Components, mask, outputList);
             }
         }
     }
-    public void ProcessOtherWorker(Worker worker, List<IWorldElement> outputList) {
+    public void ProcessOtherWorker(Worker worker, Func<IWorldElement, bool> mask, List<IWorldElement> outputList) {
         outputList.Add(worker);
-        ProcessContainedSyncMembers([worker], outputList);
+        ProcessContainedSyncMembers([worker], mask, outputList);
     }
 
-    public void ProcessContainedSyncMembers<W>(IEnumerable<W> workers, List<IWorldElement> outputList) where W : Worker {
+    public void ProcessContainedSyncMembers<W>(IEnumerable<W> workers, Func<IWorldElement, bool> mask, List<IWorldElement> outputList) where W : Worker {
         if (IncludeSyncMembers) {
             foreach (var worker in workers) {
-                outputList.AddRange(worker.GetSyncMembers<IWorldElement>());
+                if (mask(worker)) {
+                    outputList.AddRange(worker.GetSyncMembers<IWorldElement>());
+                }
             }
         }
     }
 
     public void ProcessRoot(Func<IWorldElement, bool> mask, List<IWorldElement> outputList) {
-        if (SearchRoot == null) {
+        if (SearchRoot == null || !mask(SearchRoot)) {
             return;
         }
         if (SearchRoot is Worker worker) {
@@ -127,16 +129,16 @@ public class FromParent<T>(IWorldElement searchRoot) : ISearchSource where T : I
                     ProcessSlotList([slot], mask, 0, outputList);
                     break;
                 case User user:
-                    ProcessUserList([user], outputList);
+                    ProcessUserList([user], mask, outputList);
                     break;
                 case Component component:
-                    ProcessComponentList([component], outputList);
+                    ProcessComponentList([component], mask, outputList);
                     break;
                 case UserComponent component:
-                    ProcessUserComponentList([component], outputList);
+                    ProcessUserComponentList([component], mask, outputList);
                     break;
                 default:
-                    ProcessOtherWorker(worker, outputList);
+                    ProcessOtherWorker(worker, mask, outputList);
                     break;
             }
         } else {
