@@ -2,18 +2,18 @@
 using System.Diagnostics.CodeAnalysis;
 
 
-namespace ResoniteModularSearch.Search;
-public class SearchValues {
+namespace ResoniteModularSearch.DataModel;
+public class TypedDictionary {
     private readonly IDictionary<object, object> content;
 
-    public SearchValues(IDictionary<object, object> content) {
+    public TypedDictionary(IDictionary<object, object> content) {
         this.content = content;
     }
-    public SearchValues() : this(new Dictionary<object, object>()) {
+    public TypedDictionary() : this(new Dictionary<object, object>()) {
 
     }
 
-    public SearchValues ToFrozenValues() {
+    public TypedDictionary ToFrozenValues() {
         return new(content.ToFrozenDictionary());
     }
 

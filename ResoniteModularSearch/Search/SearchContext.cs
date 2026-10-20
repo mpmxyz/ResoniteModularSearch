@@ -1,5 +1,6 @@
 ﻿using FrooxEngine;
 
+using ResoniteModularSearch.DataModel;
 using ResoniteModularSearch.Filters;
 using ResoniteModularSearch.Sources;
 
@@ -7,7 +8,7 @@ namespace ResoniteModularSearch.Search;
 public class SearchContext {
     private IFilter Filter { get; }
     private Func<IWorldElement, bool> Mask { get; }
-    public SearchValues Values { get; private set; } = new();
+    public TypedDictionary Values { get; private set; } = new();
 
     private readonly Dictionary<IFilter, SearchContext> subQueryContexts = [];
     private readonly Dictionary<IWorldElement, bool> matchCache = []; //TODO: use cache only for subqueries with cacheable filters
