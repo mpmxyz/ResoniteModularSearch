@@ -9,11 +9,11 @@ using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 
-[Filter("Sync Member")]
+[Filter("Is Sync Member")]
 public class SyncMemberFilter : IFilter {
     public Regex? NamePattern { get; set; }
 
-    public string Name => "Sync Member";
+    public string Name => "Is Sync Member";
 
     public bool IsValid { get => NamePattern != null; }
 
