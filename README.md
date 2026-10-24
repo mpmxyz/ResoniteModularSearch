@@ -66,22 +66,109 @@ This is a mini-documentation on the included filters.
 It is possible to create your own filters and actions by including implementations of `IFilter` (with no argument constructor) and `IFilterAction` within another mod. The API may be subject to change, though. Check the implementation of [`ValueFilter`](ResoniteModularSearch/Filters/ValueFilter.cs) if you want to see an example!
 
 ### Simple Filters
-#### `Destroyable`
-#### `Dynamic Impulse`
-#### `Dynamic Variable`
-#### `Is Sync Member`
-#### `Is Type`
-#### `Filter List`
-#### `Hierarchy`
-#### `Reference / Value`
-#### `Regular Expression`
+#### [`Destroyable`](ResoniteModularSearch/Filters/DestroyableFilter.cs)
+This filter only matches elements that can be destroyed. (implementing [`IDestroyable`](https://wiki.resonite.com/Type:IDestroyable))
+
+It features a single action that can destroy all selected search results.
+
+#### [`Dynamic Impulse`](ResoniteModularSearch/Filters/DynamicImpulses/DynamicImpulseFilter.cs)
+This filter allows searching for components and ProtoFlux nodes related to [dynamic impulses](https://wiki.resonite.com/Dynamic_impulses).
+There is partial support for constant values fed into `Tag` inputs of ProtoFlux nodes.
+
+The following option are available:
+
+|Option|Details|
+|-|-|
+|Of type|if non-null restricts results to triggers/receivers that transport a value of the given type|
+|Tag pattern|a regular expression that must match the tag of the dynamic impulse if non-null|
+|Include Button interactions/ProtoFlux nodes|allows restricting the type of results|
+|(sync/async)|allows choosing if only sync or async impulses are matched|
+|(with/without values)|allows choosing if matched impulses are supposed to transport a value|
+|(triggers/receivers)|allows choosing if only trigger or only receivers are matched|
+|(enabled/disabled)|allows restricting match of receivers to ones (not) reachable by triggers with `Exclude Disabled` set to `true`|
+
+A single action is offered:
+
+|Action|Details|
+|-|-|
+|Replace tag|uses the regular expression `Tag pattern` to apply a replacement using `Replace tag with` on all selected search result's `Tag` property or input|
+
+#### [`Dynamic Variable`](ResoniteModularSearch/Filters/DynamicVariables/DynamicVariableFilter.cs)
+This filter allows searching for components and ProtoFlux nodes related to [dynamic variables](https://wiki.resonite.com/Dynamic_variables).
+There is partial support for constant values fed into `Name` inputs of ProtoFlux nodes.
+
+Read/write nodes are speculatively "linked" to dynamic variable spaces depending on their inputs.
+
+The following option are available:
+
+|Option|Details|
+|-|-|
+|Of type|if non-null restricts results to elements that relate to a variable of the given type|
+|Search for (linked/unlined)|allows restricting search to linked/unlinked variables/nodes only|
+|Within space|if non-null restricts results to elements that are the given dynamic variable space or are interacting with/linked to it|
+|Space name pattern|a regular expression that is matched on the (linked/expected) spaces' name if the pattern is non-null|
+|Matched space name|selects the source for the space name pattern in case of variables (name of linked space vs. name specified in variable name)|
+|Variable name pattern|a regular expression that is matched on the variable name if the pattern is non-null (ignores space-prefixes)|
+|Include spaces/components/ProtoFlux nodes/Button interactions|allows restricting the type of results|
+
+Multiple actions are offered on selected search results:
+
+|Action|Details|
+|-|-|
+|Replace space name|uses the regular expression `Space name pattern` to apply a replacement using `Replace space name with` on all selected search result's `Name` property or input (only affects space name prefix on variables)|
+|Replace variable name|uses the regular expression `Variable name pattern` to apply a replacement using `Replace variable name with` on all selected search result's `Name` property or input (ignores space name prefixes)|
+|Add space name|forces the explicit use of dynamic variable spaces's name in variable names|
+|Remove space name|removes space name prefixes from all variables or inputs as long as the result links to the same space|
+
+#### [`Is Sync Member`](ResoniteModularSearch/Filters/SyncMemberFilter.cs)
+This filter only matches `ISyncMember`s and offers to match its name with the regular expression `Name Pattern`. (ignored if null)
+
+#### [`Is Type`](ResoniteModularSearch/Filters/ElementTypeFilter.cs)
+This filter only matches elements that are of a given type. (with an option to allow subtypes)
+
+#### [`Filter List`](ResoniteModularSearch/Filters/FilterList.cs)
+This filter allows combining multiple filters and is actually the root filter set-up on all search windows.
+The section [Usage / Screenshots](#usage-screenshots) contains a detailed description on how to use them.
+
+#### [`Hierarchy`](ResoniteModularSearch/Filters/HierarchyFilter.cs)
+This filter allows checking if the search result is a `Parent of` / `Child of` a given element. (ignored if null)
+
+Enabling the option `Include self` makes it also match the given element(s).
+
+#### [`Reference`](ResoniteModularSearch/Filters/ReferenceFilter.cs) / [`Value`](ResoniteModularSearch/Filters/ValueFilter.cs)
+Both filters allow to `Search for` properties with an exact match of a reference or value. The matched references / values can be `Replace`d with the reference / value `Replace with`.
+
+#### [`Regular Expression`](ResoniteModularSearch/Filters/RegexFilter.cs)
+This filter allows to search `string` properties that match the a given (non-null) regular expression.
+
+The `Replace` action can be applied on all selected search results.
 
 ### Subqueries
 Subqueries are special because they start a _nested_ search for each candidate element.
 
+A subquery filter only _matches_ when it finds at least one search result within the nested search.
+
 Nested search results are appended as additional information to the search results.
 
-#### `Containing Element`
-#### `Has Sync Member`
-#### `Referencing Element`
-#### `Within Element`
+#### [`Containing Element`](ResoniteModularSearch/Filters/SubQueries/ContainingElementFilter.cs)
+This subquery goes through all elements contained within the matched element.
+The type argument allows efficiently restricting the number of elements checked by this subquery.
+
+A `Max depth` other than 0 allows searching through child slots and their contained 
+elements. The number limits how deep the search goes:
+
+|Value|Interpretation|
+|-|-|
+|-1|unlimited|
+|0|no children|
+|1|direct children|
+|2|direct children and their direct children|
+
+#### [`Has Sync Member`](ResoniteModularSearch/Filters/SubQueries/HasSyncMemberFilter.cs)
+This subquery goes through all sync members that are of or a subtype of the type argument.
+
+#### [`Referencing Element`](ResoniteModularSearch/Filters/SubQueries/ReferencingElementFilter.cs)
+This subquery matches all reference properties and tries to apply the contained filters on the target of the property.
+
+#### [`Within Element`](ResoniteModularSearch/Filters/SubQueries/WithinElementFilter.cs)
+This subquery tries to find a parent of the matched element. `Max Depth` limits how many times the subquery goes from a slot to its parent slot. (-1=unlimited)
