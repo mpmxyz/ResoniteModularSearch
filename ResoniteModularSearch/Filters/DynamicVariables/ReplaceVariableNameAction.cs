@@ -25,6 +25,7 @@ public class ReplaceVariableNameAction : IFilterAction {
             return FilterActionResult.Ignored;
         }
 
+        //TODO: prevent replacement if tag field has already been changed within this user interaction (i.e. shared ProtoFlux inputs)
         return RegexHelper.ApplyReplace(abstractedDynVar.VariableName,
                                         filter.VariableNamePattern,
                                         filter.ReplaceVariableNameWith,

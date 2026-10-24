@@ -26,6 +26,7 @@ public class ReplaceTagAction : IFilterAction {
         }
         var result = FilterActionResult.Ignored;
         foreach (var tagField in abstractedDynImpulse.TagFields) {
+            //TODO: prevent replacement if tag field has already been changed within this user interaction (i.e. shared ProtoFlux inputs)
             result += RegexHelper.ApplyReplace(tagField.Value,
                                                filter.TagPattern,
                                                filter.ReplaceTagWith,
