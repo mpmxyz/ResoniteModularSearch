@@ -25,6 +25,9 @@ For example you can find all elements:
 1. Start the game! If you want to verify that the mod is working you can try to open a search window as demonstrated in the next section.
 
 ## Usage / Screenshots
+
+Demo video: https://youtu.be/Zx96oPzvstE
+
 1. The mod can only be interacted with when one has builder permissions within a session.
 2. Equip Resonite's `DevTool`! (default or custom)
 3. There are multiple ways to create a search window:
