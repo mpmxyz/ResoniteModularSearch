@@ -16,12 +16,13 @@ using ResoniteModularSearch.Sources;
 namespace ResoniteModularSearch;
 
 public class ResoniteModularSearch : ResoniteMod {
-	internal const string VERSION_CONSTANT = "1.0.0";
+	internal const string VERSION_CONSTANT = "1.1.0";
+	internal const string LINK_CONSTANT = "https://github.com/mpmxyz/ResoniteModularSearch/";
 
 	public override string Name => "ResoniteModularSearch";
 	public override string Author => "mpmxyz";
 	public override string Version => VERSION_CONSTANT;
-	public override string Link => "https://github.com/mpmxyz/ResoniteModularSearch/";
+	public override string Link => LINK_CONSTANT;
 
 	public static bool DevToolHasRootSearch => devToolHasRootSearch.Value;
 	public static bool DevToolHasSmartSearch => devToolHasSmartSearch.Value;
