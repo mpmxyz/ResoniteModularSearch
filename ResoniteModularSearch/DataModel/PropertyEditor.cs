@@ -79,4 +79,20 @@ public static class PropertyEditor {
             return null;
         }
     }
+
+
+
+    public static PropertyUI CreateCheckbox(this UIBuilder builder, Func<bool> getter, Action<bool> onChange) {
+        builder.PushStyle();
+        var checkbox = builder.Checkbox(getter());
+        var property = checkbox.State;
+        void OnRefresh() {
+            property.Value = getter();
+        }
+        property.OnValueChange += (e) => {
+            onChange(e.Value);
+        };
+        builder.PopStyle();
+        return new PropertyUI(OnRefresh);
+    }
 }

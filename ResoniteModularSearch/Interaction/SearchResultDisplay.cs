@@ -94,6 +94,15 @@ public class SearchResultDisplay {
             builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING);
             selectionUI = builder.CreateReferenceEditor("Show results within", () => SelectedElement, (newElement) => SelectedElement = newElement);
             builder.CreateSelection(null, () => IncludeChildren, (value) => IncludeChildren = value, childDisplayOptions);
+            { 
+                builder.HorizontalLayout(StyleHelpers.DEFAULT_SPACING);
+                builder.PushStyle();
+                builder.Style.FlexibleWidth = 1f;
+                ButtonAction.Create(builder, "Select all", () => DisplayedResult?.SetAllSelected(true));
+                ButtonAction.Create(builder, "Deselect all", () => DisplayedResult?.SetAllSelected(false));
+                builder.PopStyle();
+                builder.NestOut();
+            }
             {
                 builder.PushStyle();
                 builder.Style.FlexibleHeight = 1f;

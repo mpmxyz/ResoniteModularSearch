@@ -84,8 +84,12 @@ public class ResultViewModuleComposition {
             builder.PopStyle();
             builder.PushStyle();
             builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
-            builder.Checkbox(result.SelectedResults.Contains(element)).State.OnValueChange += (state) => result.SetSelected(element, state.Value);
-            //TODO: add way to update UI state from SearchResult (using result values?)
+            var checkbox = builder.CreateCheckbox(() => result.SelectedResults.Contains(element), (newValue) => result.SetSelected(element, newValue));
+            void Refresh(bool newValue) {
+                checkbox.Refresh();
+            }
+            result.AddSelectionChangeListener(element, Refresh);
+            rootSlot.Destroyed += (slot) => { result.RemoveSelectionChangeListener(element, Refresh); };
             builder.PopStyle();
             builder.NestOut();
         }

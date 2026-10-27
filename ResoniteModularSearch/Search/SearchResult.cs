@@ -28,6 +28,9 @@ public class SearchResult {
     public event Action<IWorldElement>? OnRootAdded;
     public event Action<IWorldElement>? OnResultAdded;
     public event Action<IWorldElement, int>? OnRecursiveResultCountChanged;
+    public event Action<IWorldElement, bool>? OnSelectionChanged;
+
+    private readonly Dictionary<IWorldElement, HashSet<Action<bool>>> selectionChangeListeners = [];
 
     public SearchResult(SearchContext context,
                         ISet<IWorldElement> roots,
@@ -91,16 +94,53 @@ public class SearchResult {
         SetSelected(result, true);
     }
 
+    public void AddSelectionChangeListener(IWorldElement result, Action<bool> action) {
+        if (!results.Contains(result)) {
+            throw new ArgumentException("Can only observe elements that are part of the result!", nameof(result));
+        }
+        if (!selectionChangeListeners.TryGetValue(result, out var actions)) {
+            actions = [];
+            selectionChangeListeners[result] = actions;
+        }
+        actions.Add(action);
+    }
+
+    public void RemoveSelectionChangeListener(IWorldElement result, Action<bool> action) {
+        if (!results.Contains(result)) {
+            throw new ArgumentException("Can only observe elements that are part of the result!", nameof(result));
+        }
+        if (selectionChangeListeners.TryGetValue(result, out var actions)) {
+            actions.Remove(action);
+            if (actions.Count == 0) {
+                selectionChangeListeners.Remove(result);
+            }
+        }
+    }
+
     public void SetSelected(IWorldElement result, bool selected) {
         if (!results.Contains(result)) {
             throw new ArgumentException("Can only select elements that are part of the result!", nameof(result));
         }
+        bool changed;
         if (selected) {
-            selectedResults.Add(result);
+            changed = selectedResults.Add(result);
         } else {
-            selectedResults.Remove(result);
+            changed = selectedResults.Remove(result);
         }
-        //TODO: run callback if select all/none is to be implemented
+        if (changed) {
+            if (selectionChangeListeners.TryGetValue(result, out var actions)) {
+                foreach (var action in actions) {
+                    action(selected);
+                }
+            }
+            OnSelectionChanged?.Invoke(result, selected);
+        }
+    }
+
+    public void SetAllSelected(bool selected) {
+        foreach(var result in results) {
+            SetSelected(result, selected);
+        }
     }
 
     public FilterActionResult RunAction(IFilterAction action) {
