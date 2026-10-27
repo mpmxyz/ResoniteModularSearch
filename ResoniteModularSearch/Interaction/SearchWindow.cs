@@ -43,7 +43,7 @@ internal class SearchWindow {
 
         var builder = RadiantUI_Panel.SetupPanel(slot, "Search & Replace", new float2(2500f, 1000f));
         slot.LocalScale *= 0.001f;
-
+        
         //prevent accidental interactions when moving through window
         builder.Canvas.AcceptPhysicalTouch.Value = false;
 
@@ -76,5 +76,18 @@ internal class SearchWindow {
             }
             builder.NestOut();
         }
+
+        AttachGitHubLinkCanvas(slot);
+    }
+
+    private static void AttachGitHubLinkCanvas(Slot parent) {
+        Slot slot = parent.AddSlot("GitHub Link");
+        slot.LocalRotation = floatQ.AxisAngle(float3.Up, 180);
+        slot.LocalPosition += float3.Forward * 50f;
+        var builder = RadiantUI_Panel.SetupPanel(slot, "Mod: Resonite Modular Search", new(500, 125), pinButton: false, closeButton: false);
+        builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
+        builder.OverlappingLayout();
+        builder.Hyperlink(new Uri(ResoniteModularSearch.LINK_CONSTANT), "GitHub page", "Open the GitHub page of the mod \"Resonite Modular Search\" to install it yourself or to report issues.");
+        slot.GetComponent<Grabbable>()?.Destroy();
     }
 }
