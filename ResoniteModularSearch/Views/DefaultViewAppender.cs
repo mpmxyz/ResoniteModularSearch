@@ -24,19 +24,7 @@ public class DefaultViewAppender : IResultViewAppender {
             uiSlot.Name += " (Worker)";
             WorkerInspector workerInspector = uiSlot.AttachComponent<WorkerInspector>();
             if (element is Slot slot) {
-                builder.PushStyle();
-                builder.Style.Height = 32f;
-                builder.HorizontalLayout(4f);
-                builder.Style.FlexibleWidth = 1f;
-                Type type = worker.GetType();
-                Button button = builder.Button("<b>" + type.GetNiceName() + "</b>", RadiantUI_Constants.BUTTON_COLOR);
-                button.Label.Color.Value = RadiantUI_Constants.LABEL_COLOR;
-                builder.Style.FlexibleWidth = 0f;
-                builder.Style.MinWidth = 40f;
-                Hyperlink.AttachForWikiPage(builder.Button(OfficialAssets.Graphics.Icons.Inspector.Help, RadiantUI_Constants.Sub.CYAN).Slot, type);
-                button.Slot.AttachComponent<ReferenceProxySource>().Reference.Target = worker;
-                builder.PopStyle();
-                builder.NestOut();
+                AppendHeader(builder, worker);
             }
             builder.PushStyle();
             //Note: This does not work because WorkerInspector.Setup does not use the predicate.
@@ -55,6 +43,13 @@ public class DefaultViewAppender : IResultViewAppender {
             builder.PopStyle();
             nLines += worker.SyncMemberCount + 1;
             builder.NestOut();
+        } else if (element is WorkerBag<Component> componentBag) {
+            //SyncMemberEditorBuilder would cause exceptions with WorkerBags during the next update
+            AppendHeader(builder, componentBag);
+        } else if (element is WorkerBag<UserComponent> userBag) {
+            AppendHeader(builder, userBag);
+        } else if (element is WorkerBag<FrooxEngine.Stream> streamBag) {
+            AppendHeader(builder, streamBag);
         } else if (element is ISyncMember syncMember) {
             builder.PushStyle();
             builder.Style.MinHeight = StyleHelpers.DEFAULT_MIN_SIZE;
@@ -65,5 +60,21 @@ public class DefaultViewAppender : IResultViewAppender {
             nLines++;
         }
         return nLines;
+    }
+
+    private static void AppendHeader(UIBuilder builder, IWorldElement element) {
+        builder.PushStyle();
+        builder.Style.Height = 32f;
+        builder.HorizontalLayout(4f);
+        builder.Style.FlexibleWidth = 1f;
+        Type type = element.GetType();
+        Button button = builder.Button("<b>" + type.GetNiceName() + "</b>", RadiantUI_Constants.BUTTON_COLOR);
+        button.Label.Color.Value = RadiantUI_Constants.LABEL_COLOR;
+        builder.Style.FlexibleWidth = 0f;
+        builder.Style.MinWidth = 40f;
+        Hyperlink.AttachForWikiPage(builder.Button(OfficialAssets.Graphics.Icons.Inspector.Help, RadiantUI_Constants.Sub.CYAN).Slot, type);
+        button.Slot.AttachComponent<ReferenceProxySource>().Reference.Target = element;
+        builder.PopStyle();
+        builder.NestOut();
     }
 }
