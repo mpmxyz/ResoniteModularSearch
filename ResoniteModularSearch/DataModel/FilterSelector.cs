@@ -142,8 +142,8 @@ public class FilterSelector<T> {
         slot.GlobalPosition = originSlot.LocalPointToGlobal(origin.ComputeGlobalComputeRect().Center);
         slot.GlobalRotation = originSlot.GlobalRotation;
         slot.GlobalScale = originSlot.GlobalScale;
-        //offset canvas a bit in front of the original canvas (canvas scale is 0.001f -> 10 units are 1cm)
-        slot.GlobalPosition += slot.GlobalRotation * float3.Backward * 10f * slot.GlobalScale;
+        //offset canvas a bit in front of the original canvas (canvas scale is 0.001f -> 50 units are 5cm)
+        slot.GlobalPosition += slot.GlobalRotation * float3.Backward * 50f * slot.GlobalScale;
 
         slot.Tag = "Developer";
         var builder = RadiantUI_Panel.SetupPanel(slot, $"{title}...", StyleHelpers.FILTER_SELECTOR_CANVAS_SIZE, pinButton: false);
