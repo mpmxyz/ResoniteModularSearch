@@ -1,16 +1,23 @@
 {
-	"name": "ResoniteModularSearch",
-	"id": "mpmxyz.ResoniteModularSearch",
-	"description": "TODO_Description",
-	"category": "TODO_Category",
-	"sourceLocation": "https://github.com/mpmxyz/ResoniteModularSearch/",
-	"versionTemplate": {
-		"releaseUrl": "https://github.com/mpmxyz/ResoniteModularSearch/releases/tag/%TAG%",
-		"artifacts": [
-			{
-				"url": "https://github.com/mpmxyz/ResoniteModularSearch/releases/download/%TAG%/ResoniteModularSearch.dll",
-				"sha256": "computed automatically"
-			}
-		]
-	}
+  "name": "ResoniteModularSearch",
+  "id": "mpmxyz.ResoniteModularSearch",
+  "description": "adds the ability to search the world hierarchy and do actions like \"replace\", designed to be extensible",
+  "category": "Misc",
+  "sourceLocation": "https://github.com/mpmxyz/ResoniteModularSearch/",
+  "tags": [
+    "search",
+    "tool",
+    "edit",
+    "replace",
+    "modular"
+  ],
+  "versionTemplate": {
+    "releaseUrl": "https://github.com/mpmxyz/ResoniteModularSearch/releases/tag/%TAG%",
+    "artifacts": [
+      {
+        "url": "https://github.com/mpmxyz/ResoniteModularSearch/releases/download/%TAG%/ResoniteModularSearch.dll",
+        "sha256": "computed automatically"
+      }
+    ]
+  }
 }
