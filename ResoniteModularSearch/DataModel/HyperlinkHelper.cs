@@ -19,7 +19,9 @@ public static class HyperlinkHelper {
         linkButton.SetupBackgroundColor(linkText.Color);
         var linkAction = linkText.Slot.AttachComponent<Hyperlink>();
         linkAction.URL.Value = link;
+#pragma warning disable CS8601 // Possible null reference assignment.
         linkAction.Reason.Value = reason;
+#pragma warning restore CS8601 // Possible null reference assignment.
         var copyButton = builder.Button("(copy link)");
         builder.FitContent(horizontal: SizeFit.PreferredSize, vertical: SizeFit.Disabled);
         copyButton.Slot.AttachComponent<OverlappingLayout>();
