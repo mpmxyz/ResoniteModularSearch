@@ -40,8 +40,12 @@ public static class PropertyEditor {
             property.Value = getter();
         }
         OnRefresh();
-        property.OnValueChange += (e) => {
-            onChange(e.Value);
+        property.OnValueChange += (field) => {
+            try {
+                onChange(field.Value);
+            } catch (Exception e) {
+                ResoniteModularSearch.Error($"Unexpected exception when handling value change:\n{e}");
+            }
         };
         builder.PopStyle();
         return new PropertyUI(OnRefresh);
@@ -60,8 +64,12 @@ public static class PropertyEditor {
 #pragma warning restore CS8601 // Possible null reference assignment.
         }
         OnRefresh();
-        property.OnTargetChange += (e) => {
-            onChange(e.Target);
+        property.OnTargetChange += (r) => {
+            try {
+                onChange(r.Target);
+            } catch (Exception e) {
+                ResoniteModularSearch.Error($"Unexpected exception when handling value change:\n{e}");
+            }
         };
         builder.PopStyle();
         return new PropertyUI(OnRefresh);
@@ -89,8 +97,12 @@ public static class PropertyEditor {
         void OnRefresh() {
             property.Value = getter();
         }
-        property.OnValueChange += (e) => {
-            onChange(e.Value);
+        property.OnValueChange += (field) => {
+            try {
+                onChange(field.Value);
+            } catch (Exception e) {
+                ResoniteModularSearch.Error($"Unexpected exception when handling value change:\n{e}");
+            }
         };
         builder.PopStyle();
         return new PropertyUI(OnRefresh);

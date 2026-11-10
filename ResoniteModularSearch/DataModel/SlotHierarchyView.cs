@@ -43,7 +43,11 @@ public class SlotHierarchyView(Slot slot, SearchResult result, Action<IWorldElem
         UIStyle style = builder.Style.Clone();
 
         var rootSlot = builder.VerticalLayout(StyleHelpers.DEFAULT_SPACING).Slot;
-        Slot.Destroyed += (x) => rootSlot.Destroy();
+        Slot.Destroyed += (x) => {
+            if (!rootSlot.IsDestroyed) {
+                rootSlot.Destroy();
+            }
+        };
         {
             builder.PushStyle();
             builder.Style.Height = StyleHelpers.DEFAULT_MIN_SIZE;
@@ -62,9 +66,13 @@ public class SlotHierarchyView(Slot slot, SearchResult result, Action<IWorldElem
             Text nameText = builder.Text(null, bestFit: true, Alignment.MiddleLeft);
             builder.PopStyle();
             void UpdateNameText() {
-                var recursiveCount = Result.RecursiveResultCount.GetValueOrDefault(Slot, 0);
-                var directCount = Result.DirectSlotResultCount.GetValueOrDefault(Slot, 0);
-                nameText.Content.Value = $"({directCount}/{recursiveCount}) {Slot.Name}";
+                try {
+                    var recursiveCount = Result.RecursiveResultCount.GetValueOrDefault(Slot, 0);
+                    var directCount = Result.DirectSlotResultCount.GetValueOrDefault(Slot, 0);
+                    nameText.Content.Value = $"({directCount}/{recursiveCount}) {Slot.Name}";
+                } catch (Exception e) {
+                    ResoniteModularSearch.Error($"Unexpected exception when changing slot name text:\n{e}");
+                }
             }
             UpdateNameText();
             Slot.Name_Field.Changed += (x) => UpdateNameText();

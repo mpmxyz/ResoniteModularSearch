@@ -36,14 +36,26 @@ public class ButtonAction(Button button) {
 
         toggleField.Value.OnValueChange += (v) => {
             if (unlocked) {
-                action(userField.Reference.Target);
+                try {
+                    action(userField.Reference.Target);
+                } catch (Exception e) {
+                    ResoniteModularSearch.Error($"Unexpected exception running the action:\n{e}");
+                }
                 if (dangerous) {
                     unlocked = false;
-                    onLockChanged?.Invoke(unlocked);
+                    try {
+                        onLockChanged?.Invoke(unlocked);
+                    } catch (Exception e) {
+                        ResoniteModularSearch.Error($"Unexpected exception updating the lock:\n{e}");
+                    }
                 }
             } else {
                 unlocked = true;
-                onLockChanged?.Invoke(unlocked);
+                try {
+                    onLockChanged?.Invoke(unlocked);
+                } catch (Exception e) {
+                    ResoniteModularSearch.Error($"Unexpected exception updating the lock:\n{e}");
+                }
             }
         };
         return new ButtonAction(button);

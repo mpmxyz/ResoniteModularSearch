@@ -100,7 +100,11 @@ public static class PropertySelection {
         property.OnValueChange += (i) => {
             if (i >= 0 && i < optionList.Count) {
                 UpdateVisuals(i);
-                onChange(optionList[i].Value);
+                try {
+                    onChange(optionList[i].Value);
+                } catch (Exception e) {
+                    ResoniteModularSearch.Error($"Unexpected exception when handling value change:\n{e}");
+                }
             }
         };
         builder.NestOut();
