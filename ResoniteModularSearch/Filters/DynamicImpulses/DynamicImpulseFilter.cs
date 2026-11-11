@@ -75,7 +75,7 @@ public partial class DynamicImpulseFilter : IFilter {
 
     public bool Match(IWorldElement element, SearchContext context) {
         if (!context.Values.TryGetValue<AbstractedDynamicImpulseElement>(element, out var abstractedDynImpulse)) {
-            abstractedDynImpulse = DynamicImpulseHelpers.TryGetAbstractedDynamicVariableElement(element);
+            abstractedDynImpulse = DynamicImpulseHelpers.TryGetAbstractedDynamicImpulseElement(element);
             context.Values.SetValue(element, abstractedDynImpulse);
         }
         if (!abstractedDynImpulse.IsValidResult) {

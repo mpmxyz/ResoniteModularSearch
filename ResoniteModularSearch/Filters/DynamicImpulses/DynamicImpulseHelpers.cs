@@ -70,7 +70,7 @@ internal static class DynamicImpulseHelpers {
         }
             return (T?)typeof(DynamicImpulseHelpers).GetGenericMethod(method, BindingFlags.Static | BindingFlags.NonPublic, [type])!.Invoke(null, [element]);
     }
-    public static AbstractedDynamicImpulseElement TryGetAbstractedDynamicVariableElement(IWorldElement element) {
+    public static AbstractedDynamicImpulseElement TryGetAbstractedDynamicImpulseElement(IWorldElement element) {
         switch(element) {
             case ButtonDynamicImpulseTrigger buttonTrigger:
                 return new(kind: DynamicImpulseElementKind.ButtonInteraction,

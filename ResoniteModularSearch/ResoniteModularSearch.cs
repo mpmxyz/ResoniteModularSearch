@@ -9,14 +9,14 @@ using HarmonyLib;
 using ResoniteModLoader;
 
 using ResoniteModularSearch.Filters;
+using ResoniteModularSearch.Filters.DynamicImpulses;
 using ResoniteModularSearch.Filters.DynamicVariables;
 using ResoniteModularSearch.Interaction;
-using ResoniteModularSearch.Sources;
 
 namespace ResoniteModularSearch;
 
 public class ResoniteModularSearch : ResoniteMod {
-	internal const string VERSION_CONSTANT = "1.1.1";
+	internal const string VERSION_CONSTANT = "1.2.0";
 	internal const string LINK_CONSTANT = "https://github.com/mpmxyz/ResoniteModularSearch/";
 
 	public override string Name => "ResoniteModularSearch";
@@ -73,42 +73,19 @@ public class ResoniteModularSearch : ResoniteMod {
             }
 
 			if (grabbedReference is Slot slot) {
-				menu.AddLocalActionItem($"Search from {slot.Name}", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
-					var window = new SearchWindow(b.World);
-					var searchRequestPanel = window.SearchRequestPanel;
-					searchRequestPanel.Source = new FromParent<IWorldElement>(slot);
-					window.Setup(b.World);
-				});
+                ContextMenuEnrichment.SearchFrom(menu, slot);
 			} else if (grabbedReference is DynamicVariableSpace space) {
-                menu.AddLocalActionItem($"Search variables in {space.SpaceName.Value}", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
-                    var window = new SearchWindow(b.World);
-                    var searchRequestPanel = window.SearchRequestPanel;
-                    searchRequestPanel.Source = new FromParent<IWorldElement>(space.Slot);
-                    searchRequestPanel.FilterList.AddFilter(new DynamicVariableFilter {
-                        WithinSpace = space,
-                        QueriedKinds = new HashSet<DynamicVariableElementKind>([
-                            DynamicVariableElementKind.Component,
-                            DynamicVariableElementKind.ProtoFlux,
-                            DynamicVariableElementKind.ButtonInteraction,
-                        ])
-                    });
-                    window.Setup(b.World);
-                    if (AutoLaunchSmartSearch) {
-                        searchRequestPanel.RunSearch();
-                    }
-                });
+                ContextMenuEnrichment.SearchDynamicVariableSpace(menu, space);
             } else if (grabbedReference != null) {
-                menu.AddLocalActionItem($"Search for references to {grabbedReference.Name}", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
-                    var window = new SearchWindow(b.World);
-                    var searchRequestPanel = window.SearchRequestPanel;
-                    searchRequestPanel.FilterList.AddFilter(new ReferenceFilter {
-                        SearchFor = grabbedReference
-                    });
-                    window.Setup(b.World);
-                    if (AutoLaunchSmartSearch) {
-                        searchRequestPanel.RunSearch();
-                    }
-                });
+                var abstractedVariable = DynamicVariableHelpers.TryGetAbstractedDynamicVariableElement(grabbedReference);
+                var abstractedDynamicImpulse = DynamicImpulseHelpers.TryGetAbstractedDynamicImpulseElement(grabbedReference);
+                if (abstractedVariable.IsValidResult) {
+                    ContextMenuEnrichment.SearchDynamicVariable(menu, abstractedVariable);
+                } else if (abstractedDynamicImpulse.IsValidResult) {
+                    ContextMenuEnrichment.SearchDynamicImpulse(menu, abstractedDynamicImpulse);
+                } else {
+                    ContextMenuEnrichment.SearchReferencesTo(menu, grabbedReference);
+                }
             }
             if (grabbedValueSource != null) {
                 var typeArgs = grabbedValueSource.GetType().GetGenericArgumentsFromInterface(typeof(IValueSource<>));
@@ -118,17 +95,7 @@ public class ResoniteModularSearch : ResoniteMod {
     }
     private static void TryAddMenuItemForValue<T>(ContextMenu menu, IValueSource source) {
         if (source is IValueSource<T> valueSource && ValueFilter<T>.IsValidType) {
-            menu.AddLocalActionItem($"Search for occurrences of {valueSource.Value}", null, colorX.Red, delegate (IButton b, ButtonEventData ev) {
-                var window = new SearchWindow(b.World);
-                var searchRequestPanel = window.SearchRequestPanel;
-                searchRequestPanel.FilterList.AddFilter(new ValueFilter<T> {
-                    SearchFor = valueSource.Value
-                });
-                window.Setup(b.World);
-                if (AutoLaunchSmartSearch) {
-                    searchRequestPanel.RunSearch();
-                }
-            });
+            ContextMenuEnrichment.SearchForValue<T>(menu, valueSource.Value);
         }
     }
 }

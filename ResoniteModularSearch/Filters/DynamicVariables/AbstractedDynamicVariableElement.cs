@@ -2,7 +2,7 @@
 
 namespace ResoniteModularSearch.Filters.DynamicVariables;
 
-internal class AbstractedDynamicVariableElement(DynamicVariableElementKind kind,
+public class AbstractedDynamicVariableElement(DynamicVariableElementKind kind,
                                                 IField<string>? nameField,
                                                 Type? type = null,
                                                 DynamicVariableSpace? knownSpace = null,

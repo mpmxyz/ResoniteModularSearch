@@ -34,4 +34,27 @@ public static class RegexHelper {
             return FilterActionResult.Success;
         });
     }
+
+    public static Regex? TryCompile(string? source) {
+        try {
+            return source != null ? new Regex(source) : null;
+        } catch {
+            return null;
+        }
+    }
+
+    public static Regex? TryCompileExactMatch(string? value) {
+        if (value == null) {
+            return null;
+        }
+        return new Regex($"^{Regex.Escape(value)}$");
+    }
+
+    public static Regex? TryCompileAnyExactMatch(IEnumerable<string?> values) {
+        var alternatives = string.Join("|", values.OfType<string>().Select(Regex.Escape).ToHashSet());
+        if (alternatives.Length == 0) {
+            return null;
+        }
+        return new Regex($"^({alternatives})$");
+    }
 }

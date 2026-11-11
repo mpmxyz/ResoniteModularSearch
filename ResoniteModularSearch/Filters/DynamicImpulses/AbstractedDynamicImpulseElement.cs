@@ -2,7 +2,7 @@
 
 namespace ResoniteModularSearch.Filters.DynamicImpulses;
 
-internal class AbstractedDynamicImpulseElement(DynamicImpulseElementKind kind,
+public class AbstractedDynamicImpulseElement(DynamicImpulseElementKind kind,
                                                IList<IField<string>> tagFields,
                                                bool isTrigger,
                                                bool isAsync,

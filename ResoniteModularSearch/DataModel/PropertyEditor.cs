@@ -77,18 +77,8 @@ public static class PropertyEditor {
 
     public static PropertyUI CreateRegexEditor(this UIBuilder builder, string name, Func<Regex?> getter, Action<Regex?> onChange) {
         //TODO: highlight if input contains invalid Regex
-        return CreateValueEditor(builder, name, () => getter()?.ToString(), value => onChange(TryCompile(value)));
+        return CreateValueEditor(builder, name, () => getter()?.ToString(), value => onChange(RegexHelper.TryCompile(value)));
     }
-
-    private static Regex? TryCompile(string? source) {
-        try {
-            return source != null ? new Regex(source) : null;
-        } catch {
-            return null;
-        }
-    }
-
-
 
     public static PropertyUI CreateCheckbox(this UIBuilder builder, Func<bool> getter, Action<bool> onChange) {
         builder.PushStyle();
