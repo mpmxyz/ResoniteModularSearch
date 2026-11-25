@@ -1,6 +1,6 @@
 ﻿namespace ResoniteModularSearch.Filters.TODO;
 /// <summary>
-/// appends all results to a collection
+/// to add (editable) explaining text to presets
 /// </summary>
-internal class CreateCollectionAction {
+internal class Comment {
 }

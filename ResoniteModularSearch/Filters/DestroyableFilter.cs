@@ -8,7 +8,7 @@ using ResoniteModularSearch.Search;
 
 namespace ResoniteModularSearch.Filters;
 
-[Filter("Destroyable")]
+[Filter("Is IDestroyable")]
 public class DestroyableFilter : IFilter {
     public class DestroyAction : IFilterAction {
         private readonly DestroyableFilter filter;
@@ -36,7 +36,7 @@ public class DestroyableFilter : IFilter {
         }
     }
 
-    public string Name => "Destroyable";
+    public string Name => "Is IDestroyable";
 
     public bool IsValid { get => true; }
 
