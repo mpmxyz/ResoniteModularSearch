@@ -73,7 +73,7 @@ It is possible to create your own filters and actions by including implementatio
 This filter accepts all results and is used for its actions that can append references to the selected search results on an existing list of references.
 
 Here is an example that collects all bones used by `SkinnedMeshRenderer`s within a hierarchy:<br/>
-<a href="ScreenShots/Collect_SkinnedMeshRenderer_Bones.png"><img src="ScreenShots/Collect_SkinnedMeshRenderer_Bones.png" width="300px" alt="Search for SkinnedMeshRenderer containing SyncRef<Slot> referencing a Slot which are collected to a SyncRefList<Slot>"/></a>
+<a href="Screenshots/Collect_SkinnedMeshRenderer_Bones.png"><img src="Screenshots/Collect_SkinnedMeshRenderer_Bones.png" width="300px" alt="Search for SkinnedMeshRenderer containing SyncRef<Slot> referencing a Slot which are collected to a SyncRefList<Slot>"/></a>
 
 #### [`Destroyable`](ResoniteModularSearch/Filters/DestroyableFilter.cs)
 This filter only matches elements that can be destroyed. (implementing [`IDestroyable`](https://wiki.resonite.com/Type:IDestroyable))
