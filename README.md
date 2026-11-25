@@ -69,6 +69,12 @@ This is a mini-documentation on the included filters.
 It is possible to create your own filters and actions by including implementations of `IFilter` (with no argument constructor) and `IFilterAction` within another mod. The API may be subject to change, though. Check the implementation of [`ValueFilter`](ResoniteModularSearch/Filters/ValueFilter.cs) if you want to see an example!
 
 ### Simple Filters
+#### [`Collect Results`](ResoniteModularSearch/Filters/CollectResultsFilter.cs)
+This filter accepts all results and is used for its actions that can append references to the selected search results on an existing list of references.
+
+Here is an example that collects all bones used by `SkinnedMeshRenderer`s within a hierarchy:<br/>
+<a href="ScreenShots/Collect_SkinnedMeshRenderer_Bones.png"><img src="ScreenShots/Collect_SkinnedMeshRenderer_Bones.png" width="300px" alt="Search for SkinnedMeshRenderer containing SyncRef<Slot> referencing a Slot which are collected to a SyncRefList<Slot>"/></a>
+
 #### [`Destroyable`](ResoniteModularSearch/Filters/DestroyableFilter.cs)
 This filter only matches elements that can be destroyed. (implementing [`IDestroyable`](https://wiki.resonite.com/Type:IDestroyable))
 
