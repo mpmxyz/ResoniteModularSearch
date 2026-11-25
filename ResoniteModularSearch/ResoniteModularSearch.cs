@@ -16,7 +16,7 @@ using ResoniteModularSearch.Interaction;
 namespace ResoniteModularSearch;
 
 public class ResoniteModularSearch : ResoniteMod {
-	internal const string VERSION_CONSTANT = "1.2.0";
+	internal const string VERSION_CONSTANT = "1.3.0";
 	internal const string LINK_CONSTANT = "https://github.com/mpmxyz/ResoniteModularSearch/";
 
 	public override string Name => "ResoniteModularSearch";
